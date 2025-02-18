@@ -1,0 +1,14 @@
+/* Navbar styles */
+
+/* Navigation container */
+.nav-bg-color {
+  @apply bg-white;
+}
+
+.nav-bg-color-buttons {
+  @apply bg-custom-darkblue text-white;
+}
+
+.nav-bg-hover-color-buttons {
+@apply text-gray-900 hover:bg-custom-lightblue hover:text-gray-700;
+}

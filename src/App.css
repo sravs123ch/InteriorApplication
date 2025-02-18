@@ -1,0 +1,56 @@
+body.loading {
+  background-color: white;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+.container {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.animation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+.animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+
+/* Tailwind customization for react-calendar */
+.react-calendar {
+  @apply w-full max-w-md mx-auto border-none rounded-lg overflow-hidden;
+}
+
+.react-calendar__tile {
+  @apply p-2 text-center hover:bg-blue-100 transition-colors duration-300 rounded-lg;
+}
+
+.react-calendar__tile--active {
+  @apply bg-blue-500 text-white font-bold;
+}
+
+.react-calendar__tile--now {
+  @apply bg-blue-100 text-blue-700;
+}
+
+.holiday {
+  @apply text-red-600 font-semibold text-sm;
+}
