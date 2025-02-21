@@ -32,6 +32,7 @@ import { OrderContext } from "../../Context/orderContext";
 import { DataContext } from "../../Context/DataContext";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSearchParams } from "react-router-dom";
 
 TablePaginationActions.propTypes = {
   count: PropTypes.number.isRequired,
@@ -49,7 +50,15 @@ const Orders = () => {
   const [searchName, setSearchName] = useState("");
   const [totalOrders, setTotalOrders] = useState(0);
   const [loading, setLoading] = useState(false);
-
+  const [searchParams] = useSearchParams();
+  const installationFilter = searchParams.get("filter") || ""; // Get filter from URL
+  
+  useEffect(() => {
+    if (installationFilter) {
+      // setSelectedInstallationFilter(initialFilter);
+      setSelectedFilter(installationFilter); 
+    }
+  }, [installationFilter]); // Runs when the URL changes
   const searchItems = (value) => {
     setSearchName(value);
   };
@@ -175,7 +184,7 @@ const Orders = () => {
     (product) =>
       selectedFilter === "All" ||
       product.OrderStatus === selectedFilter ||
-      product.OntimeorDelay == selectedFilter
+      product.OntimeorDelay === selectedFilter
   );
 
   const paginatedData = filteredOrders.slice(
@@ -316,7 +325,7 @@ const Orders = () => {
        setIsExpanded(storedCollapsed === 'false');
      }
    }, []); // Only run this once on component mount
-
+   
   return (
     // <div className="main-container">
     <div
@@ -491,10 +500,9 @@ const Orders = () => {
           </div>
         </div>
       </div>
-
       <div className="flex justify-center md:justify-center mb-4 px-4 md:px-0 mt-4">
         <div className="flex flex-wrap justify-center space-x-2 md:space-x-2 md:justify-center lg:justify-end">
-          <FilterBar
+        <FilterBar
             selectedFilter={selectedFilter}
             onFilterChange={setSelectedFilter}
           />
@@ -610,7 +618,7 @@ const Orders = () => {
 
                     <div className="inline-flex items-center mt-2">
                       {/* Using ternary operator to determine the status display */}
-                      {product.OntimeorDelay == "1" ? (
+                      {product.OntimeorDelay === "1" ? (
                         <>
                           <span className="inline-flex items-center bg-green-100 px-2 py-2 rounded mr-2 motion-preset-pulse-sm motion-duration-2000">
                             <span className="w-2 h-2 rounded-full bg-green-600 motion-preset-pulse-sm motion-duration-1500"></span>
@@ -619,7 +627,7 @@ const Orders = () => {
                             <strong>On time</strong>
                           </span>
                         </>
-                      ) : product.OntimeorDelay == "2" ? (
+                      ) : product.OntimeorDelay === "2" ? (
                         <>
                           <span className="inline-flex items-center bg-orange-100 px-2 py-2 rounded mr-2 motion-preset-pulse-sm motion-duration-2000">
                             <span className="w-2 h-2 rounded-full bg-orange-500 motion-preset-pulse-sm motion-duration-1500"></span>

@@ -35,6 +35,10 @@ const CalendarScreen = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
  const [isLoading, setIsLoading] = useState(false);
+ const [isExpanded, setIsExpanded] = useState(() => {
+     const storedCollapsed = localStorage.getItem('navbar-collapsed');
+     return storedCollapsed !== 'true'; // Default to expanded if not set
+   });
 
   // Fetch holidays from the API
   const fetchHolidays = async () => {
@@ -119,7 +123,7 @@ const CalendarScreen = () => {
   };
 
   return (
-    <div className="main-container">
+    <div className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <div className="body-container">
         <h2 className="heading">Calendar</h2>
         <div className="flex items-center space-x-2 ml-auto">

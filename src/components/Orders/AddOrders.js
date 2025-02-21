@@ -15,7 +15,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import {
   GETALLUSERS_API,
   GETALLCUSTOMERS_API,
-  GETALLSTORES_API,
+ 
   GETORDERBYID_API,
   ORDERBYCUSTOMERID_API,
   getOrderByIdAPI,
@@ -23,7 +23,7 @@ import {
   HolidaysList,
   GetAllChildrenByParentId,
 } from "../../Constants/apiRoutes";
-import { IoIosSearch, IoMdAddCircleOutline } from "react-icons/io";
+import { IoIosSearch } from "react-icons/io";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import CloseIcon from "@mui/icons-material/Close";
@@ -46,11 +46,11 @@ import {
   TableHead,
   TableRow,
   TableBody,
-  TableCell,
+ 
   Button,
 } from "@mui/material";
 import { TableContainer, Paper } from "@mui/material";
-import { IoMdCloseCircle } from "react-icons/io";
+
 import TableFooter from "@mui/material/TableFooter";
 import TablePagination from "@mui/material/TablePagination";
 import { useUpdatedStatusOrderContext } from "../../Context/UpdatedOrder";
@@ -137,7 +137,7 @@ function AddOrders() {
   // const [rowsPerPage, setRowsPerPage] = useState(2);
   // const [page, setPage] = useState(0);
   const [orders, setOrders] = useState([]);
-  const [orders1, setOrders1] = useState([]);
+
   const [results, setResults] = useState([]);
   const [isFocused, setIsFocused] = useState(false);
   const popupRef = useRef(null);
@@ -163,29 +163,23 @@ function AddOrders() {
   useEffect(() => {
     fetchProjectTypes(); // Trigger API call
   }, []); // Empty dependency array ensures this runs only once
-  const [Order, setOrder] = useState(null);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("success");
+ 
   const {
-    generatedId,
-    setGeneratedId,
-    orderDate,
-    setOrderDate,
-    designerName,
+    
     setDesignerName,
-    desginerID,
+ 
     setDesginerID,
-    statusID,
+
     setStatusID,
-    customerId,
+
     setCustomerId,
-    roleID,
+
     setRoleID,
-    AdvanceAmount,
+
     setAdvanceAmount,
-    storeId,
+
     setStoreId,
-    BalanceAmount,
+    setTotalAmount,
     setBalanceAmount,
   } = useContext(IdContext);
   const [selectedTab, setSelectedTab] = useState("address");
@@ -397,9 +391,6 @@ function AddOrders() {
     setIsDialogOpen(false);
   };
 
-  const handleAddressChange = (address) => {
-    setSelectedAddress(address);
-  };
   const handleClose = () => {
     setIsDialogOpen(false);
   };
@@ -446,7 +437,7 @@ function AddOrders() {
     };
   }, []);
 
-  const { orderIdDetails, setOrderIdDetails, getOrderById } =
+  const { orderIdDetails, setOrderIdDetails } =
     useContext(OrderContext);
   const [searchValue, setSearchValue] = useState("");
 
@@ -525,15 +516,6 @@ function AddOrders() {
     }
   }, [customerDetails]);
 
-  const handleCategoryChange = (category) => {
-    setQuery("");
-    setSelectedCategory(category);
-    setSelectedSubOption(""); // Reset sub-option when category changes
-    setOrderDetails((prevDetails) => ({
-      ...prevDetails,
-      categories: category ? category.name : "",
-    }));
-  };
   const [errors, setErrors] = useState({});
   const [showAlert, setShowAlert] = useState(false);
   const [images, setImages] = useState([]);
@@ -541,8 +523,6 @@ function AddOrders() {
   const [isLoading, setIsLoading] = useState(false);
   const isStepOptional = (step) => step === 1;
   const isStepSkipped = (step) => skipped.has(step);
-  const [orderID, setOrderID] = useState(null); // Or an initial value
-  const [IsEditMode, setIsEditMode] = useState(false);
   const [statusUpdatedData, setStatusUpdatedData] = useState("");
   const [updatedsubStatusId, setUpdatedSubStatusId] = useState("");
   const handleNext = () => {
@@ -558,7 +538,6 @@ function AddOrders() {
   const handleBack = () =>
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
 
-  const handleReset = () => setActiveStep(0);
   const addDays = (date, days) => {
     let result = new Date(date);
     result.setDate(result.getDate() + days);
@@ -608,66 +587,6 @@ function AddOrders() {
       return updatedDetails;
     });
   };
-  const handling = (e) => {
-    const { name, value } = e.target;
-
-    setOrderDetails((prevDetails) => {
-      const updatedDetails = { ...prevDetails, [name]: value };
-
-      // If ExpectedDurationDays is changed, validate and update DeliveryDate automatically
-      if (name === "ExpectedDurationDays") {
-        const days = parseInt(value, 10); // Parse the value as an integer
-
-        if (!isNaN(days) && days >= 0) {
-          // Only update DeliveryDate if the value is a valid non-negative number
-          const today = new Date();
-          const deliveryDate = addDays(today, days + 1); // Add 1 extra day for a 5-day gap
-          updatedDetails.DeliveryDate = deliveryDate;
-
-          // Clear any previous error
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            ExpectedDurationDays: "",
-          }));
-        } else if (value === "") {
-          // Clear DeliveryDate if ExpectedDurationDays is cleared
-          updatedDetails.DeliveryDate = "";
-        } else {
-          // Set an error message if the value is not a valid number
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            ExpectedDurationDays: "Please enter a valid number of days.",
-          }));
-        }
-      }
-
-      return updatedDetails;
-    });
-  };
-
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (images.length + files.length > 6) {
-      alert("You can only upload up to 6 images.");
-      return;
-    }
-    const newImages = files.map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setImages([...images, ...newImages]);
-    setImagePreviews([
-      ...imagePreviews,
-      ...newImages.map((img) => img.preview),
-    ]);
-  };
-
-  const handleImageRemove = (index) => {
-    const newImages = images.filter((_, i) => i !== index);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setImages(newImages);
-    setImagePreviews(newPreviews);
-  };
 
   const isEditMode = Boolean(
     orderDetails.OrderID ||
@@ -710,8 +629,8 @@ function AddOrders() {
       ...orderDetails,
       UploadImages: imagePreviews,
       category: selectedCategory?.name || "",
-      subOption: selectedSubOption || "",
-      pdfFile: pdfFile ? pdfFile.name : "", // Handle PDF file
+      // subOption: selectedSubOption || "",
+      // pdfFile: pdfFile ? pdfFile.name : "", // Handle PDF file
     };
 
     try {
@@ -813,13 +732,6 @@ function AddOrders() {
     setActiveStep(0); // Optional: Reset to the first step\
   };
 
-  const [countryMap, setCountryMap] = useState({});
-  const [setStateMap] = useState({});
-  const [setCityMap] = useState({});
-  const [addresses, setAddresses] = useState([]);
-  const amountToBePaid = orderDetails.TotalAmount - orderDetails.AdvanceAmount;
-  const remainder = amountToBePaid / orderDetails.installments;
-  const [showSearchCard, setShowSearchCard] = useState(false);
   const getFirstAddress = (addresses) => {
     // Assuming addresses is a comma-separated string or array of addresses
     if (Array.isArray(addresses)) {
@@ -828,68 +740,16 @@ function AddOrders() {
     return addresses.split(",")[0]; // Return the first address from a comma-separated string
   };
 
-  const handleDateChang = (e) => {
-    const { value } = e.target;
-    setOrderDetails((prevDetails) => ({
-      ...prevDetails,
-      DeliveryDate: value, // Manually update the DeliveryDate
-    }));
-  };
-
-  const handleExistingUserClick = () => {
-    setShowSearchCard(!showSearchCard);
-  };
-
-  const handleAddOrderes = () => {
-    const newErrors = {};
-    if (!orderDetails.PaymentMethod)
-      newErrors.PaymentMethod = "PaymentMethod is required";
-    if (!orderDetails.PaymentStatus)
-      newErrors.PaymentStatus = "PaymentStatus is required";
-    if (!orderDetails.MaskedCardNumber)
-      newErrors.MaskedCardNumber = "MaskedCardNumber Type is required";
-    if (!orderDetails.PaymentComments)
-      newErrors.PaymentComments = "PaymentComments  is required";
-    if (!orderDetails.AdvanceAmount)
-      newErrors.AdvanceAmount = "Amount is required";
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0) {
-      // Add the order to the orders array
-      setOrders1([...orders1, orderDetails]);
-
-      // Clear the form fields
-      setOrderDetails({
-        PaymentMethod: "",
-        PaymentStatus: "",
-        MaskedCardNumber: "",
-        PaymentComments: "",
-        AdvanceAmount: "",
-      });
-    }
-  };
-  const [pdfFile, setPdfFile] = useState(null);
+  // const [pdfFile, setPdfFile] = useState(null);
 
   const [selectedReferralType, setSelectedReferralType] = useState("");
-  const [selectedReferenceSubOption, setSelectedReferenceSubOption] =
-    useState("");
-  const [selectedSocialMediaPlatform, setSelectedSocialMediaPlatform] =
-    useState("");
+ 
   const [error, setError] = useState("");
   const handleReferralTypeChange = (value) => {
     setSelectedReferralType(value);
     setOrderDetails({ ...orderDetails, ReferedBy: value });
   };
-  const handleReferenceSubOptionChange = (value) => {
-    setSelectedReferenceSubOption(value);
-  };
-  const handleRefereeNameChange = (event) => {
-    setOrderDetails({ ...orderDetails, refereeName: event.target.value });
-  };
-  const handleSocialMediaPlatformChange = (value) => {
-    setSelectedSocialMediaPlatform(value);
-    setOrderDetails({ ...orderDetails, socialMediaPlatform: value });
-  };
-
+ 
   useEffect(() => {
     // If `isEditMode` is true, handle order details
     if (isEditMode) {
@@ -951,6 +811,7 @@ function AddOrders() {
       setCustomerId(order.CustomerID || "");
       setAdvanceAmount(order?.AdvanceAmount || "");
       setBalanceAmount(order?.BalanceAmount || "");
+      setTotalAmount(order?.TotalAmount || "");
       setStoreId(order?.StoreID || "");
       // Fetch location data based on the country, state, and city
 
@@ -1013,8 +874,6 @@ function AddOrders() {
     }
   }, [updatedStatusOrderDetails]);
 
-  // const [selectedStore, setSelectedStore] = useState("");
-  const [storeNames, setStoreNames] = useState([]);
 
   // Address Table Pagination States
   const [page, setPage] = useState(0);
@@ -1025,10 +884,8 @@ function AddOrders() {
   const [orderPage, setOrderPage] = useState(0);
   const [orderRowsPerPage, setOrderRowsPerPage] = useState(2); // Default rows per page for orders
   const totalOrders = orders?.length || 0; // Total number of orders
-  const [hasSelected, setHasSelected] = useState(false);
   const [hasUserSelected, setHasUserSelected] = useState(false);
-  // const [orderDetails, setOrderDetails] = useState({ Type: '' });
-  const [Type] = useState();
+
   // Handle address pagination change
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -1149,12 +1006,6 @@ function AddOrders() {
     setIsUserFocused(false); // Close dropdown after selection
   };
 
-  const setType = (newType) => {
-    setOrderDetails((prevDetails) => ({
-      ...prevDetails,
-      Type: newType,
-    }));
-  };
   const editModeCheck = !isEditMode;
   // Validation
   const validateOrderData = () => {
@@ -1213,9 +1064,7 @@ function AddOrders() {
   };
 
   const [subReferences, setSubReferences] = useState([]); // State for sub-references
-  const [selectedParentId, setSelectedParentId] = useState(null); // Selected parent ID
-  const [subReferenceQuery, setSubReferenceQuery] = useState("");
-  const [selectedSubReference, setSelectedSubReference] = useState(null); // Selected sub-reference
+
   const [childQuery, setChildQuery] = useState("");
   useEffect(() => {
     const fetchReferences = async () => {

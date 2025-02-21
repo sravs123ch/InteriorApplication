@@ -83,7 +83,6 @@ const allNavigation = {
       href: "/dashboard",
       icon: HomeIcon,
       iconFilled: HomeIconSolid,
-
       permission: PERMISSIONS.ACCESS_DASHBOARD,
     },
     {
@@ -379,7 +378,7 @@ export default function Navigation() {
         </button>
       )}
     </div>
-<nav className="mt-16">
+     <nav className="mt-16">
   <ul role="list" className="space-y-1">
     {Object.keys(memonavigation).map((key) => (
       <li key={key}>
@@ -395,9 +394,7 @@ export default function Navigation() {
                     <BsDatabaseAdd className="h-6 w-6" />
                     {!isCollapsed && <span className="text-sm font-bold text-gray-700">Master Data</span>}
                   </div>
-                  {/* <FaChevronDown
-                    className={`h-4 w-4 text-gray-700 transition-transform ${open ? "rotate-180" : "rotate-0"}`}
-                  /> */}
+                 
                 </Disclosure.Button>
                 <Disclosure.Panel>
                   <ul className={`space-y-1 ${!isCollapsed ? "pl-6" : ""}`}>
@@ -452,9 +449,7 @@ export default function Navigation() {
       </li>
     ))}
   </ul>
-</nav>
-
-
+</nav> 
     <div className="mt-auto w-full">
       <button
         onClick={handleSettingsClick}

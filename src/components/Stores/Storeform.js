@@ -818,29 +818,6 @@ function StoreForm() {
                     </div>
                   </div>
 
-                  {/* <div>
-                     <div className="flex  flex-col gap-1">
-                      <label className="w-1/3 text-xs font-medium text-gray-700">
-                        Email <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="Email"
-                        value={formData.Email}
-                        onChange={handleFormChange}
-                        className={`p-1 mt-2 mb-1 w-4/5 border rounded-md ${
-                          errors.EmailError &&  !formData.Email
-                            ? "border-red-400"
-                            : "border-gray-400"
-                        }`}
-                      />
-                    </div>
-                    {errors.EmailError &&  !formData.Email && (
-                      <p className="text-red-500 text-sm mt-1 ">
-                        {errors.EmailError}
-                      </p>
-                    )}
-                  </div> */}
 
 <div>
   <div className="flex flex-col gap-1">

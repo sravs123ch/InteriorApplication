@@ -1,36 +1,27 @@
 import * as React from "react";
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
-import TableCell, { tableCellClasses } from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import StatusBadge from "./Satus";
 import { AiOutlineEdit } from "react-icons/ai";
-import { MdOutlineCancel } from "react-icons/md";
 import { TableFooter } from "@mui/material";
 import axios from "axios";
 import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import FilterBar from "./FilterBar";
-import StatusUpdateDialog from "../Orders/StatusUpdateDialog";
 import { Combobox } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { OrderContext } from "../../Context/orderContext";
 import { DataContext } from "../../Context/DataContext";
-
-import { FaPlus, FaTable } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
 import Datepicker from "react-tailwindcss-datepicker";
 import {
   GET_ALL_ORDERS,
-  GETALLSTORES_API,
-  GETORDERBYID_API,
   UPDATESUBORDERSTATUSAPI,GETALLUSERS_API,
 } from "../../Constants/apiRoutes";
 import {
@@ -38,7 +29,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   TextField,
   Select,
   MenuItem,
@@ -53,8 +43,6 @@ import {
 import TablePagination from "@mui/material/TablePagination";
 export default function Orders() {
   const [products, setProducts] = useState([]);
-  const { setOrderIdDetails } = useContext(OrderContext);
-
   const { storesData } = useContext(DataContext);
   const [stores, setStores] = useState([]);
 
@@ -62,7 +50,6 @@ export default function Orders() {
     label: "All",
     subStatusId: "",
   });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -74,15 +61,10 @@ export default function Orders() {
     StoreID: "",
     StoreName: "Select Store",
   });
-  // useEffect(() => {
-  //   if (storesData) {
-  //     setStores(storesData);
-  //     // Automatically set selectedStore if there's only one store
-  //     if (storesData.length === 1) {
-  //       setSelectedStore(storesData[0]);
-  //     }
-  //   }
-  // }, [storesData]);
+  const [isExpanded, setIsExpanded] = useState(() => {
+    const storedCollapsed = localStorage.getItem('navbar-collapsed');
+    return storedCollapsed !== 'true'; // Default to expanded if not set
+  });
 
   const [value, setValue] = useState({
     startDate: "",
@@ -385,60 +367,6 @@ const [errors, setErrors] = useState(null);
      }
    };
  
-  //  const handleUserChange = (e) => {
-  //    const value = e.target.value;
-  //    setSearchUserValue(value);
- 
-  //    // Call the API to get users only if the input has more than 0 characters
-  //    if (value.trim().length > 0) {
-  //      getAllUsers(0, 10, value)
-  //        .then((response) => {
-  //          setResults(response.users || []); // Use empty array as fallback
-  //          // If the API returns users, set the designer details based on the first result
-  //          if (response.users && response.users.length > 0) {
-  //            const firstUser = response.users[0]; // Adjust based on your user object
-  //            const designerName = `${firstUser.FirstName} ${firstUser.LastName}`;
-  //            const designerId = firstUser.UserID;
- 
-  //            // Set the designer ID and name
-  //            setDesginerID(designerId);
-  //           //  setDesignerName(designerName);
-  //          } else {
-  //            // Clear if no users are found
-  //           //  setDesignerName("");
-  //            setDesginerID("");
-  //          }
-  //        })
-  //        .catch((error) => {
-  //          console.error("Error fetching users:", error);
-  //          setResults([]); // Clear results on error
-  //        });
-  //    } else {
-  //      setResults([]); // Clear results if input is empty
-  //     //  setDesignerName(""); // Clear designer name if input is empty
-  //      setDesginerID(""); // Clear designer ID if input is empty
-  //    }
-  //  };
- 
-  //  const handleUserSelect = (selectedUser) => {
-  //    // Set the Order Details with the selected user info
-  //    setDetails((prevDetails) => ({
-  //      ...prevDetails,
-  //      DesginerName: `${selectedUser.FirstName} ${selectedUser.LastName}`, // Set Designer Name
-  //      UserID: selectedUser.UserID, // Set UserID
-  //      DesignerID: selectedUser.UserID,
-  //      SubUserID: selectedUser.UserID, // Set AssignTo field with UserID
-  //    }));
- 
-  //    // Set the input field with the selected user's full name
-  //    setSearchUserValue(`${selectedUser.FirstName} ${selectedUser.LastName}`);
-  //    setSearchUserValue(details.SubUserName);
-   
- 
-  //    // Set Designer ID and close dropdown
-  //   //  setDesginerID(selectedUser.UserID); // Correctly set Designer ID on selection
-  //    setIsUserFocused(false); // Close dropdown after selection
-  //  };
  
   // Set SubUserName as the initial value when the component mounts or updates
   useEffect(() => {
@@ -489,7 +417,7 @@ const [errors, setErrors] = useState(null);
   };
 
   return (
-    <div className="main-container">
+    <div className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <ToastContainer />
       {loading && <LoadingAnimation />}
       <div>

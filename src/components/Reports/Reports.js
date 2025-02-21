@@ -1,21 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import * as XLSX from "xlsx";
-import { jsPDF } from "jspdf";
 import {
   FaChartLine,
   FaMoneyBillWave,
-  FaUndo,
-  FaComments,
+ 
   FaFileAlt,
   FaClipboardList,
 } from "react-icons/fa";
 import { Combobox } from "@headlessui/react"; // Import Combobox from Headless UI
 import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/24/outline"; // Adjust the path b
 import axios from "axios";
-import { FaCalendarAlt } from "react-icons/fa";
+
 import {
-  GETALLSTORES_API,
+
   CUSTOMER_REPORT_API,
   ORDER_STATUS_API,
   PAYMENT_REPORT_API,
@@ -29,15 +25,15 @@ import "react-toastify/dist/ReactToastify.css";
 import Datepicker from "react-tailwindcss-datepicker";
 import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 import { DataContext } from "../../Context/DataContext";
-import { OrderContext } from "../../Context/orderContext";
+
 
 function ReportGenerator() {
   const [activeTab, setActiveTab] = useState("salesReport");
 
   const [loading, setLoading] = useState(true);
-  const [orderIds, setOrderIds] = useState([]);
+
   const [selectedOrderId, setSelectedOrderId] = useState(null); // Initially null
-  const [selectedOrder, setSelectedOrder] = useState(""); // For storing the selected order number
+
   // 1. Define the state for storing order status list and selected status
   const [orderStatusList, setOrderStatusList] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -48,7 +44,7 @@ function ReportGenerator() {
 
   // 3. Define errors state for validation
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
+ 
   const [isLoading, setIsLoading] = useState(false);
 
   const [salesReport, setSalesReport] = useState({
@@ -69,8 +65,6 @@ function ReportGenerator() {
     store: "",
   });
 
-  const { setOrderIdDetails } = useContext(OrderContext);
-
   const { storesData } = useContext(DataContext);
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState("");
@@ -90,7 +84,6 @@ function ReportGenerator() {
     store: "",
   });
 
-  const [generatedReport, setGeneratedReport] = useState(null);
   const [selectedStore2, setSelectedStore2] = useState(null);
   const [selectedStore3, setSelectedStore3] = useState(null);
 
@@ -106,55 +99,6 @@ function ReportGenerator() {
     }
   };
 
-  const handleSubmit = (reportType) => {
-    if (reportType === "salesReport") {
-      setGeneratedReport({ reportType: "salesReport", data: salesReport });
-    } else if (reportType === "paymentReport") {
-      setGeneratedReport({ reportType: "paymentReport", data: paymentReport });
-    } else if (reportType === "returnReport") {
-      setGeneratedReport({ reportType: "returnReport", data: returnReport });
-    } else if (reportType === "customerFeedback") {
-      setGeneratedReport({
-        reportType: "customerFeedback",
-        data: customerFeedback,
-      });
-    }
-  };
-
-  const exportToExcel = (reportType, data) => {
-    const dataArray = Array.isArray(data) ? data : [data];
-    const ws = XLSX.utils.json_to_sheet(dataArray);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, `${reportType} Report`);
-    XLSX.writeFile(wb, `${reportType}_report.xlsx`);
-  };
-
-  const exportToPDF = (reportType, data) => {
-    const dataArray = Array.isArray(data) ? data : [data];
-    const doc = new jsPDF();
-    doc.setFontSize(12);
-
-    doc.text(
-      `${reportType
-        .replace(/([A-Z])/g, " $1")
-        .replace(/^./, (str) => str.toUpperCase())} Report`,
-      10,
-      10
-    );
-
-    let yOffset = 20;
-    dataArray.forEach((report, index) => {
-      if (yOffset > 270) {
-        // Check if page is full
-        doc.addPage();
-        yOffset = 10;
-      }
-      doc.text(`${index + 1}. ${JSON.stringify(report)}`, 10, yOffset);
-      yOffset += 10;
-    });
-
-    doc.save(`${reportType}_report.pdf`);
-  };
   const [searchTerm, setSearchTerm] = useState("");
   const [orders, setOrders] = useState([]); // State for the search term
   const [filteredOrders, setFilteredOrders] = useState(orders); // State for filtered orders
@@ -191,42 +135,19 @@ function ReportGenerator() {
   const [selectedReferralType, setSelectedReferralType] = useState("");
   const [selectedReferenceSubOption, setSelectedReferenceSubOption] =
     useState("");
-  const [selectedSocialMediaPlatform, setSelectedSocialMediaPlatform] =
-    useState("");
-  const [orderDetails, setOrderDetails] = useState({
-    ReferedBy: "",
-    refereeName: "",
-  });
+ 
   const [error, setError] = useState("");
 
-  // Handle referral type selection
-  const handleReferralTypeChange = (value) => {
-    setSelectedReferralType(value);
-    setOrderDetails({ ...orderDetails, ReferedBy: value });
-    // Reset sub-options if switching referral types
-    setSelectedReferenceSubOption("");
-    setSelectedSocialMediaPlatform("");
-  };
 
   // Handle sub-option changes for Reference
   const handleReferenceSubOptionChange = (value) => {
     setSelectedReferenceSubOption(value);
   };
 
-  // Handle sub-option changes for Social Media Platform
-  const handleSocialMediaPlatformChange = (value) => {
-    setSelectedSocialMediaPlatform(value);
-  };
-
-  // Handle referee name input change
-  const handleRefereeNameChange = (e) => {
-    setOrderDetails({ ...orderDetails, refereeName: e.target.value });
-  };
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [fileData, setFileData] = useState(null); // Store uploaded file data
-  const [manualFileID, setManualFileID] = useState("");
   const [fileID, setFileID] = useState(null);
 
   const handleFileChange = (event) => {
@@ -770,11 +691,7 @@ function ReportGenerator() {
   return (
     <div className="main-container">
       <ToastContainer />
-      {/* {isLoading && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-opacity-50 bg-gray-700">
-          <LoadingAnimation />
-        </div>
-      )} */}
+     
       <h2 className="text-2xl font-bold mb-4">Report Generator</h2>
       <div class="text-sm font-medium text-center ml-20 text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
         <ul class="flex flex-wrap -mb-px">

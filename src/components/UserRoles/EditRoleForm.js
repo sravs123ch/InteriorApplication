@@ -31,27 +31,28 @@ const EditRoleForm = () => {
   }, [storesData]);
   // `${GETORDERBYID_API}/${orderId}`
 
-  // Initialize state based on localStorage value
-  const [isExpanded, setIsExpanded] = useState(() => {
-    const storedCollapsed = localStorage.getItem("navbar-collapsed");
-    return storedCollapsed !== "true"; // Default to expanded if not set
-  });
-
-  // Update state when localStorage value changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const storedCollapsed = localStorage.getItem("navbar-collapsed");
-      setIsExpanded(storedCollapsed !== "true"); // Set expanded if 'navbar-collapsed' is not 'true'
-    };
-
-    // Add event listener for storage changes
-    window.addEventListener("storage", handleStorageChange);
-
-    // Cleanup event listener on component unmount
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
+    // Initialize state based on localStorage value
+      const [isExpanded, setIsExpanded] = useState(() => {
+       const storedCollapsed = localStorage.getItem('navbar-collapsed');
+       return storedCollapsed !== 'true'; // Default to expanded if not set
+     });
+   
+     // Update state when localStorage value changes
+     useEffect(() => {
+       const handleStorageChange = () => {
+         const storedCollapsed = localStorage.getItem('navbar-collapsed');
+         setIsExpanded(storedCollapsed !== 'true'); // Set expanded if 'navbar-collapsed' is not 'true'
+       };
+   
+       // Add event listener for storage changes
+       window.addEventListener('storage', handleStorageChange);
+   
+       // Cleanup event listener on component unmount
+       return () => {
+         window.removeEventListener('storage', handleStorageChange);
+       };
+     }, []);
+   
 
   // Fetch role permissions and categorize them by PermissionModule
   useEffect(() => {
@@ -190,224 +191,226 @@ const EditRoleForm = () => {
     // <div className="px-4 sm:px-6 lg:px-8 pt-4 ml-10 lg:ml-72 w-auto">
     // <div className="main-container">
 
-    //      <div
-    //     className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}
-    //   >
-    //   <div className="p-6 rounded-lg ">
-    //     <ToastContainer />
-    //     <h2 className="text-xl font-semibold mb-6">Edit Role</h2>
+//      <div
+//     className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}
+//   >
+//   <div className="p-6 rounded-lg ">
+//     <ToastContainer />
+//     <h2 className="text-xl font-semibold mb-6">Edit Role</h2>
 
-    //     <hr className="border-gray-300 my-4 mt-6" />
+//     <hr className="border-gray-300 my-4 mt-6" />
 
-    //     {/* Store Name Select */}
-    //     <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
-    //       <label className="block font-semibold mr-2">Store Name</label>
-    //       <Select
-    //         value={storeOptions.find(
-    //           (option) => option.value === updatedStoreId
-    //         )}
-    //         onChange={handleStoreChange}
-    //         options={storeOptions}
-    //         className="w-full sm:w-1/2"
-    //       />
-    //     </div>
+//     {/* Store Name Select */}
+//     <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
+//       <label className="block font-semibold mr-2">Store Name</label>
+//       <Select
+//         value={storeOptions.find(
+//           (option) => option.value === updatedStoreId
+//         )}
+//         onChange={handleStoreChange}
+//         options={storeOptions}
+//         className="w-full sm:w-1/2"
+//       />
+//     </div>
 
-    //     {/* Role Name Input */}
-    //     <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
-    //       <label className="block font-semibold mr-[14px]">Role Name</label>
-    //       <input
-    //         type="text"
-    //         value={updatedRoleName}
-    //         onChange={(e) => setUpdatedRoleName(e.target.value)}
-    //         className="border border-gray-300 p-2 w-full sm:w-1/2 rounded-md"
-    //       />
-    //     </div>
+//     {/* Role Name Input */}
+//     <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
+//       <label className="block font-semibold mr-[14px]">Role Name</label>
+//       <input
+//         type="text"
+//         value={updatedRoleName}
+//         onChange={(e) => setUpdatedRoleName(e.target.value)}
+//         className="border border-gray-300 p-2 w-full sm:w-1/2 rounded-md"
+//       />
+//     </div>
 
-    //     <hr className="border-gray-300 my-4 mb-6" />
+//     <hr className="border-gray-300 my-4 mb-6" />
 
-    //     {/* Permissions by Module */}
-    //     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    //       {Object.keys(permissionsByModule).map((moduleName) => {
-    //         const isAllSelected = permissionsByModule[moduleName].every(
-    //           (permission) => permission.IsChecked
-    //         );
+//     {/* Permissions by Module */}
+//     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+//       {Object.keys(permissionsByModule).map((moduleName) => {
+//         const isAllSelected = permissionsByModule[moduleName].every(
+//           (permission) => permission.IsChecked
+//         );
 
-    //         // Restricted permission IDs for Role Management
-    //         const restrictedPermissions = [7, 8, 9, 48, 31];
+//         // Restricted permission IDs for Role Management
+//         const restrictedPermissions = [7, 8, 9, 48, 31];
 
-    //         return (
-    //           <div
-    //             key={moduleName}
-    //             className="border p-4 rounded-lg shadow bg-[#e5efff]"
-    //           >
-    //             <div className="flex justify-between items-center">
-    //               <h2 className="text-lg font-bold">{moduleName}</h2>
-    //               <label className="text-sm">
-    //                 <input
-    //                   type="checkbox"
-    //                   checked={isAllSelected}
-    //                   onChange={(e) =>
-    //                     handleSelectAllChange(moduleName, e.target.checked)
-    //                   }
-    //                   className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
-    //                   disabled={moduleName === "Role Management"} // Disable "Select All" for Role Management
-    //                 />
-    //                 Select All
-    //               </label>
-    //             </div>
-    //             <hr className="border-gray-300 my-4 mt-2 mb-4" />
+//         return (
+//           <div
+//             key={moduleName}
+//             className="border p-4 rounded-lg shadow bg-[#e5efff]"
+//           >
+//             <div className="flex justify-between items-center">
+//               <h2 className="text-lg font-bold">{moduleName}</h2>
+//               <label className="text-sm">
+//                 <input
+//                   type="checkbox"
+//                   checked={isAllSelected}
+//                   onChange={(e) =>
+//                     handleSelectAllChange(moduleName, e.target.checked)
+//                   }
+//                   className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
+//                   disabled={moduleName === "Role Management"} // Disable "Select All" for Role Management
+//                 />
+//                 Select All
+//               </label>
+//             </div>
+//             <hr className="border-gray-300 my-4 mt-2 mb-4" />
 
-    //             {permissionsByModule[moduleName].map((permission) => (
-    //               <div key={permission.ID} className="flex items-center mb-2">
-    //                 <label>
-    //                   <input
-    //                     type="checkbox"
-    //                     checked={permission.IsChecked}
-    //                     onChange={() =>
-    //                       handleCheckboxChange(moduleName, permission.ID)
-    //                     }
-    //                     className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
-    //                     disabled={
-    //                       moduleName === "Role Management" &&
-    //                       restrictedPermissions.includes(permission.ID) // Disable restricted permissions
-    //                     }
-    //                   />
-    //                   {permission.Name}
-    //                 </label>
-    //               </div>
-    //             ))}
-    //           </div>
-    //         );
-    //       })}
-    //     </div>
+//             {permissionsByModule[moduleName].map((permission) => (
+//               <div key={permission.ID} className="flex items-center mb-2">
+//                 <label>
+//                   <input
+//                     type="checkbox"
+//                     checked={permission.IsChecked}
+//                     onChange={() =>
+//                       handleCheckboxChange(moduleName, permission.ID)
+//                     }
+//                     className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
+//                     disabled={
+//                       moduleName === "Role Management" &&
+//                       restrictedPermissions.includes(permission.ID) // Disable restricted permissions
+//                     }
+//                   />
+//                   {permission.Name}
+//                 </label>
+//               </div>
+//             ))}
+//           </div>
+//         );
+//       })}
+//     </div>
 
-    //     <div className="mt-10 flex flex-col sm:flex-row justify-end space-x-0 sm:space-x-4">
-    //       <button
-    //         className="bg-gray-200 px-4 py-2 rounded shadow mb-2 sm:mb-0"
-    //         onClick={handleClose}
-    //       >
-    //         Close
-    //       </button>
-    //       <button
-    //         className="bg-[#003375] text-white px-4 py-2 rounded shadow"
-    //         onClick={handleSubmit}
-    //       >
-    //         Update Role
-    //       </button>
-    //       {isLoading && <LoadingAnimation />}
-    //     </div>
-    //   </div>
-    // </div>
+//     <div className="mt-10 flex flex-col sm:flex-row justify-end space-x-0 sm:space-x-4">
+//       <button
+//         className="bg-gray-200 px-4 py-2 rounded shadow mb-2 sm:mb-0"
+//         onClick={handleClose}
+//       >
+//         Close
+//       </button>
+//       <button
+//         className="bg-[#003375] text-white px-4 py-2 rounded shadow"
+//         onClick={handleSubmit}
+//       >
+//         Update Role
+//       </button>
+//       {isLoading && <LoadingAnimation />}
+//     </div>
+//   </div>
+// </div>
 
-    <div className={`main-container ${isExpanded ? "expanded" : "collapsed"}`}>
-      <div className="p-6 rounded-lg ">
-        <ToastContainer />
-        <h2 className="text-xl font-semibold mb-6">Edit Role</h2>
+<div
+  className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}
+>
+  <div className="p-6 rounded-lg ">
+    <ToastContainer />
+    <h2 className="text-xl font-semibold mb-6">Edit Role</h2>
 
-        <hr className="border-gray-300 my-4 mt-6" />
+    <hr className="border-gray-300 my-4 mt-6" />
 
-        {/* Store Name Select */}
-        <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
-          <label className="block font-semibold mr-2">Store Name</label>
-          <Select
-            value={storeOptions.find(
-              (option) => option.value === updatedStoreId
-            )}
-            onChange={handleStoreChange}
-            options={storeOptions}
-            className="w-full sm:w-1/2"
-          />
-        </div>
-
-        {/* Role Name Input */}
-        <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
-          <label className="block font-semibold mr-[14px]">Role Name</label>
-          <input
-            type="text"
-            value={updatedRoleName}
-            onChange={(e) => setUpdatedRoleName(e.target.value)}
-            className="border border-gray-300 p-2 w-full sm:w-1/2 rounded-md"
-          />
-        </div>
-
-        <hr className="border-gray-300 my-4 mb-6" />
-
-        {/* Permissions by Module */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Object.keys(permissionsByModule).map((moduleName) => {
-            const isAllSelected = permissionsByModule[moduleName].every(
-              (permission) => permission.IsChecked
-            );
-
-            // Define restricted permissions for each module
-            const restrictedPermissionsByModule = {
-              "Role Management": [7, 8, 9, 48, 31],
-              "Menu Management": [44],
-            };
-
-            const restrictedPermissions =
-              restrictedPermissionsByModule[moduleName] || [];
-
-            return (
-              <div
-                key={moduleName}
-                className="border p-4 rounded-lg shadow bg-[#e5efff]"
-              >
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-bold">{moduleName}</h2>
-                  <label className="text-sm">
-                    <input
-                      type="checkbox"
-                      checked={isAllSelected}
-                      onChange={(e) =>
-                        handleSelectAllChange(moduleName, e.target.checked)
-                      }
-                      className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
-                      disabled={restrictedPermissions.length > 0} // Disable "Select All" if restrictions exist
-                    />
-                    Select All
-                  </label>
-                </div>
-                <hr className="border-gray-300 my-4 mt-2 mb-4" />
-
-                {permissionsByModule[moduleName].map((permission) => (
-                  <div key={permission.ID} className="flex items-center mb-2">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={permission.IsChecked}
-                        onChange={() =>
-                          handleCheckboxChange(moduleName, permission.ID)
-                        }
-                        className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
-                        disabled={restrictedPermissions.includes(permission.ID)} // Disable restricted permissions
-                      />
-                      {permission.Name}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-10 flex flex-col sm:flex-row justify-end space-x-0 sm:space-x-4">
-          <button
-            className="bg-gray-200 px-4 py-2 rounded shadow mb-2 sm:mb-0"
-            onClick={handleClose}
-          >
-            Close
-          </button>
-          <button
-            className="bg-[#003375] text-white px-4 py-2 rounded shadow"
-            onClick={handleSubmit}
-          >
-            Update Role
-          </button>
-          {isLoading && <LoadingAnimation />}
-        </div>
-      </div>
+    {/* Store Name Select */}
+    <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
+      <label className="block font-semibold mr-2">Store Name</label>
+      <Select
+        value={storeOptions.find(
+          (option) => option.value === updatedStoreId
+        )}
+        onChange={handleStoreChange}
+        options={storeOptions}
+        className="w-full sm:w-1/2"
+      />
     </div>
+
+    {/* Role Name Input */}
+    <div className="mb-4 flex flex-col sm:flex-row justify-center items-center">
+      <label className="block font-semibold mr-[14px]">Role Name</label>
+      <input
+        type="text"
+        value={updatedRoleName}
+        onChange={(e) => setUpdatedRoleName(e.target.value)}
+        className="border border-gray-300 p-2 w-full sm:w-1/2 rounded-md"
+      />
+    </div>
+
+    <hr className="border-gray-300 my-4 mb-6" />
+
+    {/* Permissions by Module */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Object.keys(permissionsByModule).map((moduleName) => {
+        const isAllSelected = permissionsByModule[moduleName].every(
+          (permission) => permission.IsChecked
+        );
+
+        // Define restricted permissions for each module
+        const restrictedPermissionsByModule = {
+          "Role Management": [7, 8, 9, 48, 31],
+          "Menu Management": [44],
+        };
+
+        const restrictedPermissions =
+          restrictedPermissionsByModule[moduleName] || [];
+
+        return (
+          <div
+            key={moduleName}
+            className="border p-4 rounded-lg shadow bg-[#e5efff]"
+          >
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-bold">{moduleName}</h2>
+              <label className="text-sm">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={(e) =>
+                    handleSelectAllChange(moduleName, e.target.checked)
+                  }
+                  className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
+                  disabled={restrictedPermissions.length > 0} // Disable "Select All" if restrictions exist
+                />
+                Select All
+              </label>
+            </div>
+            <hr className="border-gray-300 my-4 mt-2 mb-4" />
+
+            {permissionsByModule[moduleName].map((permission) => (
+              <div key={permission.ID} className="flex items-center mb-2">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={permission.IsChecked}
+                    onChange={() =>
+                      handleCheckboxChange(moduleName, permission.ID)
+                    }
+                    className="mr-2 form-checkbox h-[12px] w-[12px] text-blue-600"
+                    disabled={restrictedPermissions.includes(permission.ID)} // Disable restricted permissions
+                  />
+                  {permission.Name}
+                </label>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+
+    <div className="mt-10 flex flex-col sm:flex-row justify-end space-x-0 sm:space-x-4">
+      <button
+        className="bg-gray-200 px-4 py-2 rounded shadow mb-2 sm:mb-0"
+        onClick={handleClose}
+      >
+        Close
+      </button>
+      <button
+        className="bg-[#003375] text-white px-4 py-2 rounded shadow"
+        onClick={handleSubmit}
+      >
+        Update Role
+      </button>
+      {isLoading && <LoadingAnimation />}
+    </div>
+  </div>
+</div>
   );
 };
 

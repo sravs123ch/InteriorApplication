@@ -188,7 +188,7 @@ const OrderHistory = ({ OrderID, handleEditstatus }) => {
                             <div className="flex justify-between items-center">
                                 {/* Left-aligned "Document" label */}
                                 {/* Icons section */}
-                                <div className="flex items-center">
+                                {/* <div className="flex items-center">
                                     <span className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-all duration-200">
                                         Document
                                     </span>
@@ -199,7 +199,7 @@ const OrderHistory = ({ OrderID, handleEditstatus }) => {
                                         className="text-white bg-blue-600 hover:bg-blue-700 p-2 rounded-full flex items-center justify-center"
                                         title="View"
                                     >
-                                        <AiOutlineEye size={20} className="text-red-600" /> {/* View icon color set to blue */}
+                                        <AiOutlineEye size={20} className="text-red-600" /> 
                                     </IconButton>
 
                                     <IconButton
@@ -210,9 +210,69 @@ const OrderHistory = ({ OrderID, handleEditstatus }) => {
                                         aria-label="Download document"
                                         title="Download"
                                     >
-                                        <FiDownload size={20} className="text-green-600" /> {/* Download icon color set to green */}
+                                        <FiDownload size={20} className="text-green-600" /> 
                                     </IconButton>
-                                </div>
+                                 
+
+                                </div> */}
+  
+  
+{(Array.isArray(order.DownloadDocuments) && order.DownloadDocuments.length > 0) ? (
+  <>
+    {/* View Documents Section */}
+    {Array.isArray(order.DownloadDocuments) && order.DownloadDocuments.length > 0 && (
+      order.DownloadDocuments.map((url, docIndex) => (
+        <div key={docIndex} className="flex items-center mb-2">
+          <IconButton
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            color="primary"
+          >
+            <AiOutlineEye size={20} />
+            <span className="ml-2 font-bold text-sm">View</span>
+          </IconButton>
+        </div>
+      ))
+    )}
+
+    {/* Download Documents Section */}
+    {Array.isArray(order.DownloadDocuments) && order.DownloadDocuments.length > 0 && (
+      order.DownloadDocuments.map((url, docIndex) => (
+        <div key={docIndex} className="flex items-center mb-2">
+          <IconButton
+            onClick={async () => {
+              try {
+                const response = await fetch(url, { mode: "cors" });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = blobUrl;
+                link.setAttribute("download", url.split("/").pop() || "document.pdf"); // Extract filename or fallback
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
+              } catch (error) {
+                console.error("Error downloading file:", error);
+              }
+            }}
+            color="success"
+          >
+            <FiDownload size={20} />
+            <span className="ml-2 font-bold text-sm">Download</span>
+          </IconButton>
+        </div>
+      ))
+    )}
+  </>
+) : (
+  <span className="text-gray-400">No document available</span>
+)}
+
+                    
 
 
                                 {/* Right-aligned "View Details" button */}

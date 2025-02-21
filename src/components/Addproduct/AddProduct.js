@@ -489,11 +489,6 @@ const filteredColors = colorQuery === ''
   </div>
 </div>
 
-
-
-
-
-
                 </div>
               ))}
               <div className="mb-2">

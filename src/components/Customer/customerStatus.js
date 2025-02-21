@@ -1,100 +1,74 @@
-
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TableRow,
   TablePagination,
   Paper,
-  IconButton,
+ 
 } from "@mui/material";
-import { GrInProgress } from "react-icons/gr";
-import { AiOutlineHistory } from "react-icons/ai";
-// import OrderHistory from "./OrderHistory"; // Static import
-import { FaUpload, FaEdit, FaTrashAlt } from "react-icons/fa";
-import { IoMdAddCircleOutline } from "react-icons/io";
-import { AiOutlineEye } from "react-icons/ai";
-import { FiDownload } from "react-icons/fi";
-// import StatusBadge from "./Statuses"; // Make sure you have this component
-// import Step2 from "./payment";
+
+import { FaUpload} from "react-icons/fa";
+
 import { useNavigate, useParams } from "react-router-dom";
 import { AiOutlineAppstore, AiOutlineUnorderedList } from "react-icons/ai";
+import { IconButton } from "@mui/material"; // Import from Material-UI
+import { AiOutlineEye } from "react-icons/ai"; // Import eye icon from react-icons
+import { FiDownload } from "react-icons/fi"; // Import download icon from react-icons
+
 import {
   CreateEnquirydepartment,
   UpdateEnquirydepartment,
   GETALLUSERS_API,
-  ORDERBYCUSTOMERID_API,
   HolidaysList,
-  GetbyidEnquirydepartment,
-  GetAllEnquirydepartment,
-  GetEnquirydepartmentbyCustomer,
+  GetEnquirydepartmentbyCustomer,SendEmailToUser,
 } from "../../Constants/apiRoutes";
 import LoadingAnimation from "../Loading/LoadingAnimation";
-import { IdContext } from "../../Context/IdContext";
-import { GETORDERBYID_API } from "../../Constants/apiRoutes";
-import { ToastContainer, toast } from "react-toastify";
+
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Combobox } from "@headlessui/react";
-import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/20/solid";
+
 import {
   StyledTableCell,
-  StyledTableRow,
-  TablePaginationActions,
+
 } from "../CustomTablePagination";
 import { AiOutlineEdit } from "react-icons/ai";
 import { MdOutlineCancel } from "react-icons/md";
-import Typography from "@mui/material/Typography";
-import { OrderContext } from "../../Context/orderContext";
-import { useLocation } from "react-router-dom";
+
 import axios from "axios";
 import { IoIosSearch } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
-import { FaRegUserCircle } from "react-icons/fa";
-
 import { useUpdatedStatusOrderContext } from "../../Context/UpdatedOrder";
-// import { useFormData } from "../../Context/statusFormContext";
-
-const YourComponent = ({ onBack, onNext, orderId }) => {
-  const location = useLocation();
-
+import { EnvelopeIcon } from "@heroicons/react/24/outline";
+const YourComponent = () => {
   const { customerId } = useParams();
-
   const [desginerID, setDesginerID] = useState(null); // Initialize as null or default value
   const [designerName, setDesignerName] = useState(""); // Initialize with empty string
-
-  const [selectedFiles, setSelectedFiles] = useState([]);
-
-  const [images, setImages] = useState([]);
+  // const [images, setImages] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [pdfPreview, setPdfPreview] = useState(null);
+
   const [errors, setErrors] = useState({});
-  const [orders, setOrders] = useState([]);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showModal, setShowModal] = useState(false);
-  const [popupMessage, setPopupMessage] = useState("");
+ const [images, setImages] = useState([]);
   const [totalRecords, setTotalRecords] = useState("");
   const navigate = useNavigate();
-  const [activeStep, setActiveStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null); // Error state
   const [pdfPreviews, setPdfPreviews] = useState([]);
   const [docPreviews, setDocPreviews] = useState([]);
-  const [orderStatusList, setOrderStatusList] = useState([]);
   const [results, setResults] = useState([]);
-  const [roles, setRoles] = useState([]);
-  const [filteredRolesList, setFilteredRolesList] = useState([]);
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
   const [searchUserValue, setSearchUserValue] = useState(designerName || "");
-  const [selectedCustomer, setSelectedCustomer] = useState("");
-  const [selectedAddress, setSelectedAddress] = useState("");
-  const [showAdvancePopup, setShowAdvancePopup] = useState(false);
 
-  const { updatedStatusOrderDetails, setUpdatedStatusOrderDetails } =
+  const { updatedStatusOrderDetails} =
     useUpdatedStatusOrderContext();
   const [formOrderDetails, setFormOrderDetails] = useState({
     ExpectedDays: "",
@@ -106,154 +80,242 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     StartDate: new Date().toISOString().split("T")[0], // Set StartDate to today's date in YYYY-MM-DD format
   });
 
-  // console.log(formOrderDetails,"FOD")
+//   const saveOrderHistory = async () => {
+//     const { DeliveryDate, Comments, EnquiryDepaermentID, UserID } =
+//       formOrderDetails; // Extract required details
+//  // console.log(formOrderDetails,"FOD")
+//  const validateOrderData = () => {
+//   const newErrors = {};
+
+//   if (!formOrderDetails.UserID) {
+//     newErrors.AssignToError = "Assigned to is required.";
+//   }
+
+//   if (!formOrderDetails.DeliveryDate) {
+//     newErrors.DeliveryDateError = "Delivery Date is required.";
+//   }
+
+//   // Set the errors in state
+//   setErrors(newErrors);
+
+//   // Return true if there are any errors, otherwise return false
+//   return Object.keys(newErrors).length > 0;
+// };
+
+//     // Validate the form data
+//     const hasErrors = validateOrderData();
+//     if (hasErrors) {
+//       return; // Stop if validation fails
+//     }
+
+//     // Prepare the data to be sent as JSON
+//     const orderData = {
+//       UserID: desginerID || UserID,
+//       EndDate: DeliveryDate,
+//       Comments: Comments || "", // Default empty if null
+//       CustomerID: customerId,
+//     };
+
+//     // Define the API URL and method based on edit mode
+//     let apiUrl = CreateEnquirydepartment; // Default to the create API
+//     let method = "POST"; // Default to POST for creating a new record
+
+//     if (editMode && EnquiryDepaermentID) {
+//       // If in edit mode and EnquiryDepaermentID exists, set for update
+//       apiUrl = `${UpdateEnquirydepartment}/${EnquiryDepaermentID}`;
+//       method = "PUT";
+//       orderData.EnquiryDepaermentID = EnquiryDepaermentID; // Include the ID for updating
+
+//       if (!customerId) {
+//         toast.error("CustomerID is required for update.", {
+//           position: "top-right",
+//           autoClose: 5000,
+//           hideProgressBar: false,
+//           closeOnClick: true,
+//           pauseOnHover: true,
+//           draggable: true,
+//           progress: undefined,
+//         });
+//         return;
+//       }
+
+//       orderData.CustomerID = customerId; // Include CustomerID for update
+//     } else if (editMode && !EnquiryDepaermentID) {
+//       toast.error("EnquiryDepartmentID is missing for update.", {
+//         position: "top-right",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//         progress: undefined,
+//       });
+//       return;
+//     }
+
+//     // Start loading spinner
+//     setIsLoading(true);
+//     try {
+//       // Make the API call (use the base URL without customerId in the path)
+//       const response = await fetch(apiUrl, {
+//         // Use only the base URL
+//         method,
+//         headers: {
+//           "Content-Type": "application/json", // Set content type to JSON
+//         },
+//         body: JSON.stringify(orderData), // Send the data as JSON
+//       });
+
+//       const data = await response.json(); // Parse JSON response
+
+//       // Handle error in the response
+//       if (data.StatusCode === "FAILURE" || data.error) {
+//         console.error("API error:", data); // Log the response for debugging
+//         toast.error(
+//           data.error || "Error occurred while processing the request.",
+//           {
+//             position: "top-right",
+//             autoClose: 5000,
+//             hideProgressBar: false,
+//             closeOnClick: true,
+//             pauseOnHover: true,
+//             draggable: true,
+//             progress: undefined,
+//           }
+//         );
+//         return;
+//       }
+
+//       // Success message
+//       toast.success(data.message || "Order history saved successfully!", {
+//         position: "top-right",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//         progress: undefined,
+//       });
+
+//       // Close the modal after success and reset form
+//       closeModalAndMoveToNextStep();
+//       setFormOrderDetails({ ...formOrderDetails, Comments: "" }); // Reset form
+//       fetchDepartmentDetails();
+//       setFormOrderDetails({
+//         ExpectedDays: "",
+//         DeliveryDate: "",
+//         Comments: "",
+//         AssignTo: "",
+//         UploadDocument: "",
+//         StartDate: new Date().toISOString().split("T")[0], // Reset StartDate to today's date
+//         UserID: "",
+//       });
+//     } catch (error) {
+//       // Handle unexpected errors
+//       console.error("Unexpected error:", error); // Log the error for debugging
+//       toast.error(error.message || "An unexpected error occurred.", {
+//         position: "top-right",
+//         autoClose: 5000,
+//         hideProgressBar: false,
+//         closeOnClick: true,
+//         pauseOnHover: true,
+//         draggable: true,
+//         progress: undefined,
+//       });
+//     } finally {
+//       // Stop loading spinner
+//       setIsLoading(false);
+//     }
+//   };
+
+const saveOrderHistory = async () => {
+  const { DeliveryDate, Comments, EnquiryDepaermentID, UserID, UploadDocument } =
+    formOrderDetails; 
+
   const validateOrderData = () => {
     const newErrors = {};
-
-    if (!desginerID) {
-      newErrors.AssignToError = "Assigned to is required.";
-    }
-
-    if (!formOrderDetails.DeliveryDate) {
-      newErrors.DeliveryDateError = "Delivery Date is required.";
-    }
-
-    // Set the errors in state
+    if (!UserID) newErrors.AssignToError = "Assigned to is required.";
+    if (!DeliveryDate) newErrors.DeliveryDateError = "Delivery Date is required.";
     setErrors(newErrors);
-
-    // Return true if there are any errors, otherwise return false
     return Object.keys(newErrors).length > 0;
   };
 
-  const saveOrderHistory = async () => {
-    const { DeliveryDate, Comments, EnquiryDepaermentID, UserID } =
-      formOrderDetails; // Extract required details
+  if (validateOrderData()) return;
 
-    // Validate the form data
-    const hasErrors = validateOrderData();
-    if (hasErrors) {
-      return; // Stop if validation fails
+  // Prepare form data for submission
+  const formData = new FormData();
+
+  // Append non-file data
+  formData.append("UserID", desginerID || UserID);
+  formData.append("EndDate", DeliveryDate);
+  formData.append("Comments", Comments || "");
+  formData.append("CustomerID", customerId);
+
+  if (editMode && EnquiryDepaermentID) {
+    formData.append("EnquiryDepaermentID", EnquiryDepaermentID);
+    if (!customerId) {
+      toast.error("CustomerID is required for update.");
+      return;
     }
+  } else if (editMode && !EnquiryDepaermentID) {
+    toast.error("EnquiryDepartmentID is missing for update.");
+    return;
+  }
 
-    // Prepare the data to be sent as JSON
-    const orderData = {
-      UserID: desginerID || UserID,
-      EndDate: DeliveryDate,
-      Comments: Comments || "", // Default empty if null
-      CustomerID: customerId,
-    };
+  // Append documents to FormData
+  if (images && images.length > 0) {
+    images.forEach((fileData, index) => {
+      const { data, name, type } = fileData;
+      const blob = new Blob([data], { type });
+      formData.append("UploadDocument", blob, name);
+    });
+  }
 
-    // Define the API URL and method based on edit mode
-    let apiUrl = CreateEnquirydepartment; // Default to the create API
-    let method = "POST"; // Default to POST for creating a new record
+  // Define API endpoint and method
+  let apiUrl = CreateEnquirydepartment;
+  let method = "POST";
+  if (editMode && EnquiryDepaermentID) {
+    apiUrl = `${UpdateEnquirydepartment}/${EnquiryDepaermentID}`;
+    method = "PUT";
+  }
 
-    if (editMode && EnquiryDepaermentID) {
-      // If in edit mode and EnquiryDepaermentID exists, set for update
-      apiUrl = `${UpdateEnquirydepartment}/${EnquiryDepaermentID}`;
-      method = "PUT";
-      orderData.EnquiryDepaermentID = EnquiryDepaermentID; // Include the ID for updating
+  setIsLoading(true);
 
-      if (!customerId) {
-        toast.error("CustomerID is required for update.", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        return;
-      }
+  try {
+    const response = await fetch(apiUrl, {
+      method,
+      body: formData, // Send FormData instead of JSON
+    });
 
-      orderData.CustomerID = customerId; // Include CustomerID for update
-    } else if (editMode && !EnquiryDepaermentID) {
-      toast.error("EnquiryDepartmentID is missing for update.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+    const data = await response.json();
+
+    if (data.StatusCode === "FAILURE" || data.error) {
+      console.error("API error:", data);
+      toast.error(data.error || "Error occurred while processing the request.");
       return;
     }
 
-    // Start loading spinner
-    setIsLoading(true);
-    try {
-      // Make the API call (use the base URL without customerId in the path)
-      const response = await fetch(apiUrl, {
-        // Use only the base URL
-        method,
-        headers: {
-          "Content-Type": "application/json", // Set content type to JSON
-        },
-        body: JSON.stringify(orderData), // Send the data as JSON
-      });
+    toast.success(data.message || "Order history saved successfully!");
 
-      const data = await response.json(); // Parse JSON response
-
-      // Handle error in the response
-      if (data.StatusCode === "FAILURE" || data.error) {
-        console.error("API error:", data); // Log the response for debugging
-        toast.error(
-          data.error || "Error occurred while processing the request.",
-          {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-          }
-        );
-        return;
-      }
-
-      // Success message
-      toast.success(data.message || "Order history saved successfully!", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-
-      // Close the modal after success and reset form
-      closeModalAndMoveToNextStep();
-      setFormOrderDetails({ ...formOrderDetails, Comments: "" }); // Reset form
-      fetchDepartmentDetails();
-      setFormOrderDetails({
-        ExpectedDays: "",
-        DeliveryDate: "",
-        Comments: "",
-        AssignTo: "",
-        UploadDocument: "",
-        StartDate: new Date().toISOString().split("T")[0], // Reset StartDate to today's date
-        UserID: "",
-      });
-    } catch (error) {
-      // Handle unexpected errors
-      console.error("Unexpected error:", error); // Log the error for debugging
-      toast.error(error.message || "An unexpected error occurred.", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    } finally {
-      // Stop loading spinner
-      setIsLoading(false);
-    }
-  };
+    // Reset form after success
+    closeModalAndMoveToNextStep();
+    setFormOrderDetails({
+      ExpectedDays: "",
+      DeliveryDate: "",
+      Comments: "",
+      AssignTo: "",
+      UploadDocument: "",
+      StartDate: new Date().toISOString().split("T")[0],
+      UserID: "",
+    });
+    fetchDepartmentDetails();
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    toast.error(error.message || "An unexpected error occurred.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   useEffect(() => {
     // Log the updated order details or perform any side effects here
@@ -263,48 +325,6 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
       setShowModal(false);
       // onNext();
     }, 3000); // Delay of 4 seconds
-  };
-
-  // Close the modal after a delay (for error cases)
-  const closeModalAfterDelay = () => {
-    setTimeout(() => {
-      setShowModal(false); // Close the modal after a delay
-    }, 3000); // Delay of 4 seconds
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormOrderDetails((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handledate = (e) => {
-    const { name, value } = e.target;
-    setFormOrderDetails((prevDetails) => {
-      const updatedDetails = { ...prevDetails, [name]: value };
-      if (name === "ExpectedDurationDays") {
-        const days = parseInt(value, 10);
-        if (!isNaN(days) && days >= 0) {
-          const today = new Date();
-          updatedDetails.DeliveryDate = addDays(today, days);
-        } else {
-          updatedDetails.DeliveryDate = ""; // Reset if invalid
-        }
-      }
-      return updatedDetails;
-    });
-  };
-
-  // Utility function to calculate the delivery date based on StartDate and ExpectedDays
-  const calculateExpectedDeliveryDate = (startDate, daysToAdd) => {
-    if (!startDate || isNaN(new Date(startDate))) {
-      return ""; // Return an empty string if the startDate is invalid
-    }
-    const date = new Date(startDate);
-    date.setDate(date.getDate() + daysToAdd); // Add the number of days
-    return formatDate(date); // Return in YYYY-MM-DD format
   };
 
   const handleFileChange = (event) => {
@@ -341,11 +361,11 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
           if (
             file.type === "application/msword" || // .doc
             file.type ===
-              "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || // .docx
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || // .docx
             file.type === "text/plain" || // .txt
             file.type === "application/vnd.ms-excel" || // .xls
             file.type ===
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" // .xlsx
           ) {
             const docPreviewUrl = URL.createObjectURL(file);
             docPreviews.push({
@@ -394,7 +414,6 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
         console.error("Error processing files:", error);
       });
   };
-
   useEffect(() => {
     return () => {
       // Ensure imagePreviews is an array before calling forEach
@@ -411,23 +430,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
       }
     };
   }, [imagePreviews, pdfPreviews, docPreviews]);
-  const handleImageRemove = (index) => {
-    const newImages = images.filter((_, i) => i !== index);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setImages(newImages);
-    setImagePreviews(newPreviews);
-  };
 
-  const handlePdfRemove = (index) => {
-    const newPdfPreviews = pdfPreviews.filter((_, i) => i !== index);
-    setPdfPreviews(newPdfPreviews); // Update PDF previews
-  };
-
-  const [file, setFile] = useState(null);
-  const [pdfFile, setPdfFile] = useState(null);
-  const handleDelete = () => {
-    setFile(null);
-  };
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -436,11 +439,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
-  const addDays = (date, days) => {
-    let result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result.toISOString().split("T")[0]; // Format as 'YYYY-MM-DD'
-  };
+ 
   const handleCancel = () => {
     // Example: Reset form or navigate to a different page
     // If you want to navigate away from the form, for example:
@@ -449,24 +448,8 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
   const [selectedStatus, setSelectedStatus] = useState(
     formOrderDetails.StatusID || ""
   );
-
-  const [query, setQuery] = useState("");
-
-  const filteredStatusList =
-    query === ""
-      ? orderStatusList
-      : orderStatusList.filter((status) =>
-          status.OrderStatus.toLowerCase().includes(query.toLowerCase())
-        );
-  // Helper function to calculate the duration between two dates
-  const calculateDurationDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); // Difference in days
-    return duration;
-  };
   const [statusDetails, setStatusDetails] = useState([]);
-  const [subStatusId, setSubStatusId] = useState("");
+
 
   const fetchDepartmentDetails = async () => {
     try {
@@ -493,21 +476,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
       const enquiry = result?.enquiry || {};
 
       setStatusDetails(enquiry);
-
-      // If there's a status array, handle sub-status ID logic
-      const statuses = Array.isArray(result) ? result : [result];
-      const getSubStatusId = (statusDetails, status) => {
-        const foundItem = statusDetails.find(
-          (item) => item.StatusID === status.StatusID
-        );
-        return foundItem ? foundItem.SubStatusId ?? "" : "";
-      };
-
-      if (statuses.length > 0) {
-        const firstRecordStatus = statuses[0]?.OrderStatus;
-        const newSubStatusId = getSubStatusId(statuses, statuses[0]);
-        setSubStatusId(newSubStatusId);
-      }
+     
     } catch (err) {
       setError(err.message);
       console.error("Fetch Error:", err.message);
@@ -526,7 +495,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
   const handleCancel2 = () => {
     setSelectedStatus("");
     setImagePreviews([]);
-    setImages([]);
+    // setImages([]);
     setPdfPreviews([]);
     setDocPreviews([]);
     setEditMode(false);
@@ -541,62 +510,9 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
 
   useEffect(() => {}, [formOrderDetails]);
 
-  const selectedStatusText =
-    orderStatusList.find((status) => status.StatusID === selectedStatus)
-      ?.OrderStatus || "";
-
   useEffect(() => {}, [selectedStatus]);
-  const [visibleSteps, setVisibleSteps] = useState(5); // Initially show 5 steps
-  const [completedSteps, setCompletedSteps] = useState({});
-  // const [activeStep, setActiveStep] = useState(null);
-
-  const handleCompleteStep = (statusID) => {
-    const newCompletedSteps = { ...completedSteps };
-    // Mark the selected StatusID and all previous steps as completed
-    filteredStatusList.forEach((status) => {
-      if (status.StatusID <= statusID) {
-        newCompletedSteps[status.StatusID] = true;
-      }
-    });
-    setCompletedSteps(newCompletedSteps);
-    setActiveStep(statusID); // Set the current StatusID as active
-  };
-
-  const handleStepClick = (statusID) => {
-    handleCompleteStep(statusID); // Complete the step and all before it
-    const currentIndex = filteredStatusList.findIndex(
-      (status) => status.StatusID === statusID
-    );
-
-    // Show more steps if the current step is within visible range
-    if (currentIndex < visibleSteps) {
-      setVisibleSteps((prevSteps) =>
-        Math.min(prevSteps + 1, filteredStatusList.length)
-      );
-    }
-  };
-
-  const handleScroll = (e) => {
-    const bottom =
-      Math.ceil(e.target.scrollHeight - e.target.scrollTop) <=
-      e.target.clientHeight;
-    if (bottom && visibleSteps < filteredStatusList.length) {
-      setVisibleSteps((prevSteps) =>
-        Math.min(prevSteps + 5, filteredStatusList.length)
-      );
-    }
-  };
-
-  const handleReset = () => {
-    setActiveStep(null); // Reset the active step
-    setCompletedSteps({}); // Clear all completed steps
-    setVisibleSteps(5); // Reset visible steps to initial value
-  };
-
-  // const [searchUserValue, setSearchUserValue]=useState();
+ 
   const [isUserFocused, setIsUserFocused] = useState();
-  const [hasUserSelected, setHasUserSelected] = useState(false);
-  // const[desginerID,setDesginerID]=useState();
 
   // Function to fetch users from API
   const getAllUsers = async (pageNum, pageSize, search = "") => {
@@ -752,6 +668,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
         // RoleID: statusData.RoleID || roleID, // Fallback to default
         UserID: statusData.UserID || "",
         UploadDocument: statusData.UploadDocument || "",
+        Document: statusData.UploadDocument || "",
         StartDate: statusData.StartDate
           ? statusData.StartDate.split("T")[0]
           : new Date().toISOString().split("T")[0], // Default to today's date
@@ -838,6 +755,57 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     if (!date) return "";
     return new Date(date).toISOString().split("T")[0];
   };
+  
+  const [openPopup, setOpenPopup] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const handleMailClick = (user) => {
+    setSelectedUser(user);
+    setOpenPopup(true);
+  };
+
+  const handleMailTrigger = async () => {
+    if (!selectedUser?.UserID || !subject.trim() || !message.trim()) {
+      toast.error("Please fill in all fields before sending.");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found in local storage.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        SendEmailToUser,
+        {
+          userId: selectedUser.UserID,
+          subject: subject,
+          emailBody: message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Mail sent successfully!");
+        setOpenPopup(false);
+        setSubject(""); // Reset input fields
+        setMessage("");
+      } else {
+        toast.error("Failed to trigger mail. Please try again.");
+        console.error("Failed to trigger mail:", response.data);
+      }
+    } catch (error) {
+      toast.error("Error sending mail. Please try again.");
+      console.error("Error triggering mail:", error);
+    }
+  };
+
 
   return (
     <Box
@@ -934,7 +902,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
             {!editMode && (
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4 w-full">
                 <label className="sm:w-1/4 w-full text-left text-xs font-medium text-gray-700">
-                  Expected Delivery in Days:
+                 Department Follow up in Days:
                 </label>
                 <input
                   type="number"
@@ -952,7 +920,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
             <div className="flex flex-col  justify-center items-center  w-full">
               <div className="flex-col sm:flex-row  flex justify-center items-center gap-4 w-full">
                 <label className="sm:w-1/4 w-full text-left text-xs font-medium text-gray-700">
-                  Delivery Date: <span className="text-red-500">*</span>
+                Department Follow up Date: <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -1051,68 +1019,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
               )}
             </div>
           </div>
-          <div onScroll={handleScroll} className="overflow-y-auto pl-4 pr-14">
-            <nav aria-label="Progress">
-              <ol role="list">
-                {filteredStatusList.map((status, index) => (
-                  <li
-                    key={status.StatusID}
-                    className={`relative pb-5 cursor-pointer ${
-                      completedSteps[index] ? "completed" : ""
-                    }`}
-                  >
-                    {/* Step rendering logic with lines */}
-                    <div
-                      className={`step-indicator flex items-center ${
-                        completedSteps[index]
-                          ? "text-gray-800"
-                          : "text-gray-800"
-                      } ${activeStep === index ? "text-orange-500" : ""}`}
-                    >
-                      {/* Step Circle */}
-                      <span
-                        className={`mr-2 h-6 w-6 rounded-full flex items-center justify-center ${
-                          completedSteps[index]
-                            ? "bg-green-400 text-white"
-                            : "bg-gray-300"
-                        } ${
-                          activeStep === index
-                            ? "bg-orange-400 text-white"
-                            : "bg-gray-300"
-                        }`}
-                      >
-                        {activeStep === index ? (
-                          <GrInProgress />
-                        ) : completedSteps[index] ? (
-                          "✓"
-                        ) : (
-                          <FaRegUserCircle />
-                        )}
-                      </span>
-                      {/* Status Text */}
-                      <span>
-                        {status.OrderStatus === "Revised Design" &&
-                        subStatusId &&
-                        subStatusId !== 0 &&
-                        subStatusId !== "N/A"
-                          ? `${status.OrderStatus} R${subStatusId}`
-                          : status?.OrderStatus}
-                      </span>
-                    </div>
-
-                    {/* Line between steps */}
-                    {index < filteredStatusList.length - 1 && (
-                      <div
-                        className={`absolute top-6 left-3 w-0.5 h-8 bg-gray-300 ${
-                          completedSteps[index] ? "bg-green-400" : ""
-                        }`}
-                      />
-                    )}
-                  </li>
-                ))}
-              </ol>
-            </nav>
-          </div>
+         
         </div>
         <div className="relative flex justify-between items-center mt-6">
           <div className="flex justify-center gap-4 mx-auto">
@@ -1141,13 +1048,13 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
             </button>
           </div>
           <div className="flex items-center space-x-2">
-            <button
+            {/* <button
               className="px-4 py-2 bg-custom-darkblue text-white rounded-md flex items-center"
               onClick={handleToggleView}
             >
               {isGridView ? <AiOutlineAppstore /> : <AiOutlineUnorderedList />}
+            </button> */}
               {/* <span className="ml-2">{showTable ? "Grid View" : "Table View"}</span> */}
-            </button>
           </div>
         </div>
       </div>
@@ -1159,6 +1066,51 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
         ) : (
           <>
             <TableContainer component={Paper} className="mt-4 shadow-md">
+                                    
+        {/* Popup */}
+        {openPopup && selectedUser && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-5 rounded-lg shadow-lg w-96">
+          <h2 className="text-lg font-bold text-gray-800">Follow-up Confirmation</h2>
+
+            {/* Subject Input */}
+            <label className="block text-gray-700 text-sm font-bold mt-2">Subject:</label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Email subject"
+            />
+
+            {/* Message Input */}
+            <label className="block text-gray-700 text-sm font-bold mt-3">Message:</label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              rows="4"
+              placeholder="Email Body"
+            ></textarea>
+
+            <div className="mt-4 flex justify-end space-x-2">
+              <button
+                className="cancel-btn text-white px-4 py-2 rounded-md"
+                onClick={() => setOpenPopup(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                onClick={handleMailTrigger}
+              >
+                Send Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
               <Table
                 aria-label="orders table"
                 className="min-w-full border-collapse border border-gray-300"
@@ -1206,6 +1158,20 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
                         borderRight: "1px solid #e5e7eb",
                         color: "white",
                         fontWeight: "bold",
+                        width: "200px", // Set a fixed width for the comments column
+                        overflow: "hidden", // Hide overflow text
+                        whiteSpace: "nowrap", // Prevent text from wrapping to the next line
+                        textOverflow: "ellipsis", // Show ellipsis (...) for overflowing text
+                      }}
+                    >
+                    Send
+                    </StyledTableCell>
+                    <StyledTableCell
+                      align="center"
+                      sx={{
+                        borderRight: "1px solid #e5e7eb",
+                        color: "white",
+                        fontWeight: "bold",
                       }}
                     >
                       Document
@@ -1223,6 +1189,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
                     statusArray.map((status, index) => (
                       <TableRow key={index} className="hover:bg-gray-100">
                         {/* Assigned To & Department */}
+                        
                         <StyledTableCell
                           align="center"
                           className="border-r border-gray-300"
@@ -1261,14 +1228,70 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
                         >
                           {status.Comments || "N/A"}
                         </StyledTableCell>
+                        <StyledTableCell
+  align="center"
+  className="border-r border-gray-300 w-20 flex justify-center"
+>
+  <div className="rounded-md px-3 py-2 ml-10 bg-[#ffe4e6] flex justify-center items-center ring-1 ring-[#881337] w-[80px]">
+    <button onClick={() => handleMailClick(status)}  className="flex items-center">
+      <h1 className="mr-1 text-[#881337] text-sm">Mail</h1>
+      <span>
+        <EnvelopeIcon className="text-[#881337] w-5 h-5" />
+      </span>
+    </button>
+  </div>
+</StyledTableCell>
 
                         {/* Document Links */}
-                        <StyledTableCell
-                          align="center"
-                          className="border-r border-gray-300"
-                        >
-                          <span>No Documents to View</span>
-                        </StyledTableCell>
+                       
+                        <StyledTableCell align="center" className="border-r border-gray-300">
+  {status.Document ? (
+    <div className="flex flex-col items-center space-y-1">
+      {/* View Document */}
+      <div className="flex items-center">
+        <IconButton
+          href={status.Document}
+          target="_blank"
+          rel="noopener noreferrer"
+          color="primary"
+        >
+          <AiOutlineEye size={20} />
+          <span className="ml-2 font-bold text-sm">View</span>
+        </IconButton>
+      </div>
+
+      {/* Download Document */}
+      <div className="flex items-center">
+        <IconButton
+          onClick={async () => {
+            try {
+              const response = await fetch(status.Document, { mode: "cors" }); // Use status.Document instead of url
+              const blob = await response.blob();
+              const blobUrl = window.URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = blobUrl;
+              link.setAttribute("download", status.Document.split("/").pop()); // Extracts filename
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(blobUrl); // Clean up
+            } catch (error) {
+              console.error("Error downloading file:", error);
+            }
+          }}
+          color="success"
+        >
+          <FiDownload size={20} />
+          <span className="ml-2 font-bold text-sm">Download</span>
+        </IconButton>
+      </div>
+    </div>
+  ) : (
+    <span>No Documents to View</span>
+  )}
+</StyledTableCell>
+
+
 
                         {/* Actions - Edit and Delete */}
                         <StyledTableCell

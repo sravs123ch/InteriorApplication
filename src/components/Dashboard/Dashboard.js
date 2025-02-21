@@ -14,6 +14,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import {
   GET_OVERALL_DATA_FOR_DASHBOARD,
   TRIGGER_MAIL,
+  DashboardOrderStatus,CustomerStatusCount,
 } from "../../Constants/apiRoutes";
 import Datepicker from "react-tailwindcss-datepicker";
 import { GET_SALES_AND_PAYMENT_REPORT_BY_MONTH } from "../../Constants/apiRoutes";
@@ -39,7 +40,11 @@ const Dashboard = () => {
   const [storeNames, setStoreNames] = useState([]);
   const [selectedStore, setSelectedStore] = useState("");
   const [isStoreDataLoading, setIsStoreDataLoading] = useState(true);
+  const[orderStatusData,setOrderStatusData]=useState({}); 
+  const[customerStatusData,setCustomerStatusData]=useState({}); 
   const navigate = useNavigate();
+
+  const tenantID = localStorage.getItem("TenantID");
   useEffect(() => {
     const loadStoreData = () => {
       const storedData = localStorage.getItem("storesData");
@@ -126,7 +131,71 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
   // Listen for the storeDataReady event
+ 
+const fetchOrderStatusData = async () => {
+  try {
+    let storeIDs = selectedStore?.StoreID || getStoreIDs();
+
+    if (!storeIDs || storeIDs.length === 0) {
+      console.warn("No StoreIDs provided. Skipping network call.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const response = await axios.get(DashboardOrderStatus, {
+      params: {
+        StartDate: value.startDate,
+        EndDate: value.endDate,
+        StoreIDs: Array.isArray(storeIDs) ? storeIDs : [storeIDs],
+      },
+    });
+
+    if (response.data.success) {
+      setOrderStatusData(response.data.data); // ✅ Store only the "data" part
+    } else {
+      console.warn("Unexpected API response:", response.data);
+    }
+  } catch (error) {
+    console.error("Error fetching overall dashboard data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const fetchCustomerStatusData = async () => {
+  try {
+    let storeIDs = selectedStore?.StoreID || getStoreIDs();
+
+    if (!storeIDs || storeIDs.length === 0) {
+      console.warn("No StoreIDs provided. Skipping network call.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    const response = await axios.get(CustomerStatusCount, {
+      params: {
+        StartDate: value.startDate,
+        EndDate: value.endDate,
+        StoreIDs: Array.isArray(storeIDs) ? storeIDs : [storeIDs],
+      },
+    });
+
+    if (response.data.success) {
+      setCustomerStatusData(response.data.data); // ✅ Store only the "data" part
+    } else {
+      console.warn("Unexpected API response:", response.data);
+    }
+  } catch (error) {
+    console.error("Error fetching overall dashboard data:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
     const loadStoreData = () => {
       const storedData = localStorage.getItem("storesData");
@@ -166,6 +235,8 @@ const Dashboard = () => {
       if (storeNames.length > 0) {
         fetchSalesAndPaymentData();
         fetchOverallData();
+        fetchOrderStatusData();
+        fetchCustomerStatusData();
       }
     };
 
@@ -359,6 +430,18 @@ const Dashboard = () => {
   const goToCustomers = () => {
     navigate("/Customer", { state: { fromDashboard: true } });
   };
+  const goToOrders = () => {
+    navigate("/Orders");
+  };
+  const goToOrdersInstallation = () => {
+    navigate("/Orders?filter=Installation"); // Pass filter as a query parameter
+  };
+  const goToOrdersCompleted = () => {
+    navigate("/Orders?filter=Completion"); // Pass filter as a query parameter
+  };
+  const goToProduction = () => {
+    navigate("/production");
+  };
   return (
     // <div className="main-container">
     <div className={`main-container ${isExpanded ? "expanded" : "collapsed"}`}>
@@ -457,7 +540,9 @@ const Dashboard = () => {
 
             {/* Text Content */}
             <div>
-              <h2 className="text-2xl font-bold">100</h2>
+              <p className="text-2xl font-bold">
+                {overallData.CustomerCount || 0}
+              </p>
               <p className="text-lg text-white opacity-80 ml-1 font-bold">
                 ENQUIRY
               </p>
@@ -470,18 +555,23 @@ const Dashboard = () => {
         {/* Icon & Text Container */}
         <div className="relative h-32 p-4 bg-green-500 text-white rounded-2xl  overflow-hidden">
           {/* Icon & Text Container */}
-          <div className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm">
+          <div
+            className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm"
+            onClick={goToCustomers}
+          >
             {/* Icon */}
             <RiUserFollowLine className="text-6xl text-white opacity-80 mr-4" />
 
             {/* Text Content */}
             <div>
-              <h1 className="text-2xl font-bold">100</h1>
+              {/* <h1 className="text-2xl font-bold">100</h1> */}
+              <p className="text-2xl">{customerStatusData?.otherCount || 0}</p>
               <p className="text-lg text-white opacity-80 font-bold ml-1">
                 FOLLOW UP'S
               </p>
             </div>
-            <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p>
+            {/* <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p> */}
+            <p className="text-2xl absolute bottom-4 right-5 font-bold">{customerStatusData?.holdCount || 0}</p>
           </div>
           {/* Wave Effect */}
         </div>
@@ -489,13 +579,17 @@ const Dashboard = () => {
         {/* CONFIRMATION */}
         <div className="relative h-32 p-4 bg-yellow-500 text-white rounded-2xl  overflow-hidden">
           {/* Icon & Text Container */}
-          <div className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm">
+          <div
+            className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm"
+            onClick={goToOrders}
+          >
             {/* Icon */}
             <GiConfirmed className="text-6xl text-white opacity-80 mr-4" />
 
             {/* Text Content */}
             <div>
-              <h2 className="text-2xl font-bold">100</h2>
+              {/* <h2 className="text-2xl font-bold">100</h2> */}
+              <p className="text-2xl">{overallData.TotalOrderCount || 0}</p>
               <p className="text-lg text-white opacity-80 font-bold ml-1">
                 CONFIRMATION
               </p>
@@ -506,13 +600,17 @@ const Dashboard = () => {
         {/* PRODUCTION */}
         <div className="relative h-32 p-4 bg-red-500 text-white rounded-2xl   overflow-hidden">
           {/* Icon & Text Container */}
-          <div className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm">
+          <div
+            className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm"
+            onClick={goToProduction}
+          >
             {/* Icon */}
             <MdProductionQuantityLimits className="text-6xl text-white opacity-80 mr-4" />
 
             {/* Text Content */}
             <div>
-              <h2 className="text-2xl font-bold">100</h2>
+              {/* <h2 className="text-2xl font-bold">100</h2> */}
+              <p className="text-2xl">{orderStatusData?.productionCount || 0}</p>
               <p className="text-lg text-white opacity-80 ml-1 font-bold">
                 PRODUCTION
               </p>
@@ -524,13 +622,16 @@ const Dashboard = () => {
         {/* INSTALLATION */}
         <div className="relative h-32 p-4 bg-slate-500 text-white rounded-2xl   overflow-hidden">
           {/* Icon & Text Container */}
-          <div className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm">
+          <div
+            className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm"
+            onClick={goToOrdersInstallation}
+          >
             {/* Icon */}
             <GrInstall className="text-6xl text-white opacity-80 mr-4" />
 
             {/* Text Content */}
             <div>
-              <h2 className="text-2xl font-bold">100</h2>
+            <p className="text-2xl">{orderStatusData?.installationCount || 0}</p>
               <p className="text-lg text-white opacity-80 font-bold ml-1">
                 INSTALLATION
               </p>
@@ -542,13 +643,16 @@ const Dashboard = () => {
         {/* HANDOVER */}
         <div className="relative  p-4 h-32 bg-indigo-500 text-white rounded-2xl  overflow-hidden">
           {/* Icon & Text Container */}
-          <div className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm">
+          <div
+            className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm"
+            onClick={goToOrdersCompleted}
+          >
             {/* Icon */}
             <BsBoxFill className="text-6xl text-white opacity-80 mr-4" />
 
             {/* Text Content */}
             <div>
-              <h2 className="text-2xl font-bold">100</h2>
+            <p className="text-2xl">{orderStatusData?.completionCount || 0}</p>
               <p className="text-lg text-white opacity-80 font-bold ml-1">
                 HANDOVER
               </p>
@@ -560,31 +664,32 @@ const Dashboard = () => {
       {/* Graph Section */}
 
       {/* <div className="container mx-auto"> */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div className="bg-white shadow rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-4">Sales</h2>
+      {tenantID !== "1" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div className="bg-white shadow rounded-lg p-4">
+            <h2 className="text-xl font-semibold mb-4">Sales</h2>
 
-          <Line data={lineData} ref={lineChartRef} />
-        </div>
+            <Line data={lineData} ref={lineChartRef} />
+          </div>
 
-        <div className="bg-white shadow rounded-lg p-4">
-          <h2 className="text-xl font-semibold mb-4">Order Status</h2>
+          <div className="bg-white shadow rounded-lg p-4">
+            <h2 className="text-xl font-semibold mb-4">Order Status</h2>
 
-          <div className="w-72 h-72 mx-auto">
-            <Doughnut data={doughnutData} ref={doughnutChartRef} />
+            <div className="w-72 h-72 mx-auto">
+              <Doughnut data={doughnutData} ref={doughnutChartRef} />
+            </div>
           </div>
         </div>
-      </div>
-
+      )}
       {/* Full-width Big Chart */}
+      {tenantID !== "1" && (
+        <div className="bg-white shadow rounded-lg p-4">
+          <h2 className="text-xl font-semibold mb-4">Revenue Generated</h2>
 
-      <div className="bg-white shadow rounded-lg p-4">
-        <h2 className="text-xl font-semibold mb-4">Revenue Generated</h2>
-
-        <Bar data={bigChartData} ref={bigChartRef} />
-      </div>
+          <Bar data={bigChartData} ref={bigChartRef} />
+        </div>
+      )}
     </div>
-    //{" "}
   );
 };
 

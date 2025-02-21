@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import TableFooter from "@mui/material/TableFooter";
 import TablePagination from "@mui/material/TablePagination";
 import { FaPlus } from "react-icons/fa";
-import * as XLSX from "xlsx";
+// import * as XLSX from "xlsx";
 import { AiOutlineEdit } from "react-icons/ai";
 import { IoIosSearch } from "react-icons/io";
 import { FaTable } from "react-icons/fa";
@@ -25,10 +25,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import {
   GETALLCUSTOMERS_API,
   DELETECUSTOMERSBYID_API,
-  CUSTOMERID_API,
-  ADDRESS_API,
   CUSTOMER_REPORT_API,
-  ORDERBYCUSTOMERID_API,
 } from "../../Constants/apiRoutes";
 import {
   StyledTableCell,
@@ -49,14 +46,14 @@ function Customers() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchName, setSearchName] = useState("");
-  const [Customers, setCustomers] = useState([]);
+  // const [Customers, setCustomers] = useState([]);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const navigate = useNavigate();
   const [paginatedPeople, setPaginatedPeople] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   // const { setCustomerDetails } = useContext(CustomerContext);
-  const { customerDetails, setCustomerDetails, setAddressDetails } =
+  const {  setCustomerDetails} =
     useContext(CustomerContext);
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
@@ -64,16 +61,16 @@ function Customers() {
   console.log("Location state:", location.state);
   // const [storeNames, setStoreNames] = useState([]);
 
-  const [customers] = useState([]);
-  const [activeStep, setActiveStep] = useState(0);
-  const [orders, setOrders] = useState([]); // State to hold the fetched orders
+  // const [customers] = useState([]);
+  // const [activeStep, setActiveStep] = useState(0);
+  // const [orders, setOrders] = useState([]); // State to hold the fetched orders
   const { storesData } = useContext(DataContext);
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState("");
 
 const [ordersMap, setOrdersMap] = useState({});
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState(null);
+// const [loading, setLoading] = useState(false);
+// const [error, setError] = useState(null);
   // useEffect(() => {
   //   if (storesData) {
   //     setStores(storesData || []);
@@ -158,7 +155,7 @@ useEffect(() => {
         value.endDate
       );
   
-      setCustomers(customers);
+      // setCustomers(customers);
       setPaginatedPeople(customers);
   
       if (!isSearching) {
@@ -365,8 +362,7 @@ useEffect(() => {
    }, []); // Only run this once on component mount
   
   return (
-    // <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:ml-10 lg:ml-72 w-auto">
-    // <div className="main-container">
+ 
     <div
     className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}
   >
@@ -488,10 +484,10 @@ useEffect(() => {
           <TableHead>
             <TableRow>
               <StyledTableCell style={{ width: "10%" }}>Ref No</StyledTableCell>
-              <StyledTableCell style={{ width: "20%" }}>Name</StyledTableCell>
-              <StyledTableCell style={{ width: "15%" }}>Email</StyledTableCell>
+              <StyledTableCell style={{ width: "15%" }}>Name</StyledTableCell>
+              <StyledTableCell style={{ width: "20%" }}>Contact Details</StyledTableCell>
               <StyledTableCell style={{ width: "15%" }}>
-                Mobile No
+               Refered By
               </StyledTableCell>
               {/* <StyledTableCell style={{ width: "15%" }}>Gender</StyledTableCell> */}
               {fromDashboard ? (
@@ -521,8 +517,22 @@ useEffect(() => {
                       <span>{person.CustomerLastName}</span>
                     </div>
                   </StyledTableCell>
-                  <StyledTableCell>{person.CustomerEmail}</StyledTableCell>
-                  <StyledTableCell>{person.PhoneNumber}</StyledTableCell>
+                  {/* <StyledTableCell>{person.CustomerEmail}</StyledTableCell> */}
+                    <StyledTableCell align="left">
+                                      <span>
+                                        <span className="text-gray-400">Email:</span>{" "}
+                                        <strong>
+                                          {person.CustomerEmail ? person.CustomerEmail : "N/A"}
+                                        </strong>
+                                      </span>
+                                      <br />
+                                      {/* <br /> */}
+                                      <div className="mt-2">
+                                        <span className="text-gray-400">Phone:</span>{" "}
+                                        {person.PhoneNumber ? person.PhoneNumber : "N/A"}
+                                      </div>
+                                    </StyledTableCell>
+                  <StyledTableCell>{person.ReferedBy}</StyledTableCell>
               
 <StyledTableCell>
   {fromDashboard ? (
@@ -572,27 +582,6 @@ useEffect(() => {
                         />
                         Delete
                       </button>
-
-                      {/* <button
-                        type="button"
-                        onClick={() => {
-                          handleViewOrdersClick(person.CustomerID);
-                          setActiveStep(3);
-                        }}
-                        className="button view-button w-32 whitespace-nowrap" 
-                      >
-                        <GrFormView aria-hidden="true" className="h-5 w-5" />
-                        View Orders
-                      </button> */}
-                      {/* <button
-  type="button"
-  onClick={() => handleViewOrdersClick(person.CustomerID)}
-  className={`button view-button w-32 whitespace-nowrap ${!ordersMap[person.CustomerID] ? 'opacity-50 cursor-not-allowed' : ''}`}
-  disabled={!ordersMap[person.CustomerID]} // Disable if no orders
->
-  <GrFormView aria-hidden="true" className="h-5 w-5" />
-  View Orders
-</button> */}
 <button
   type="button"
   onClick={() => handleViewOrdersClick(person.CustomerID)}

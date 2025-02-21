@@ -13,6 +13,7 @@ export const IdProvider = ({ children }) => {
   const [statusID, setStatusID] = useState(null);
   const [roleID, setRoleID] = useState(null);
   const [AdvanceAmount, setAdvanceAmount] = useState(null);
+  const [TotalAmount, setTotalAmount] = useState(null);
   const[BalanceAmount,setBalanceAmount]=useState(null);
   const [storeId, setStoreId] = useState(null);
 
@@ -24,9 +25,7 @@ export const IdProvider = ({ children }) => {
   useEffect(() => {}, [desginerID]);
   useEffect(() => {}, [storeId]);
 
-  useEffect(() => {
-    console.log("balanceAmount changed:", BalanceAmount);
-  }, [BalanceAmount]);
+  useEffect(() => {}, [BalanceAmount]);
 
   return (
     <IdContext.Provider
@@ -50,7 +49,7 @@ export const IdProvider = ({ children }) => {
         storeId,
         setStoreId,
         BalanceAmount,
-        setBalanceAmount,
+        setBalanceAmount,TotalAmount, setTotalAmount,
       }}
     >
       {children}

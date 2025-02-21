@@ -1,19 +1,4 @@
-// // OrderContext.js
-// import React, { createContext, useContext, useState } from 'react';
 
-// const OrderUpdatedContext = createContext();
-
-// export const UpdatedOrderProvider = ({ children }) => {
-//   const [updatedOrderDetails, setUpdatedOrderDetails] = useState({});
-
-//   return (
-//     <OrderUpdatedContext.Provider value={{ updatedOrderDetails, setUpdatedOrderDetails }}>
-//       {children}
-//     </OrderUpdatedContext.Provider>
-//   );
-// };
-
-// export const useUpdatedOrderContext = () => useContext(OrderUpdatedContext);
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 

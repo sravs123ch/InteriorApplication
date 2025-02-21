@@ -3,7 +3,6 @@ import {
   Box,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
   TableRow,
@@ -12,15 +11,15 @@ import {
   IconButton,
 } from "@mui/material";
 import { GrInProgress } from "react-icons/gr";
-import { AiOutlineHistory } from 'react-icons/ai';
+
 import OrderHistory from "./OrderHistory"; // Static import
-import { FaUpload, FaEdit, FaTrashAlt } from "react-icons/fa";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { FaUpload} from "react-icons/fa";
+
 import { AiOutlineEye } from "react-icons/ai";
 import { FiDownload } from "react-icons/fi";
 import StatusBadge from "./Statuses"; // Make sure you have this component
-import Step2 from "./payment";
-import { useNavigate, useParams } from "react-router-dom";
+
+import { useNavigate } from "react-router-dom";
 import { AiOutlineAppstore, AiOutlineUnorderedList } from "react-icons/ai";
 import {
   CREATEORUPDATE_ORDER_HISTORY__API,
@@ -29,26 +28,22 @@ import {
   GETALLROLESS_API,
   ORDER_STATUS_API,
   ORDERBYCUSTOMERID_API,
-  emailForProduction,
+  emailForProduction,emailForBalancePayment,
   HolidaysList,
 } from "../../Constants/apiRoutes";
 import LoadingAnimation from "../Loading/LoadingAnimation";
 import { IdContext } from "../../Context/IdContext";
 import { GETORDERBYID_API } from "../../Constants/apiRoutes";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Combobox } from "@headlessui/react";
-import { ChevronUpDownIcon, CheckIcon } from "@heroicons/react/20/solid";
+import { ChevronUpDownIcon} from "@heroicons/react/20/solid";
 import {
   StyledTableCell,
-  StyledTableRow,
-  TablePaginationActions,
+
 } from "../CustomTablePagination";
 import { AiOutlineEdit } from "react-icons/ai";
 import { MdOutlineCancel } from "react-icons/md";
-import Typography from "@mui/material/Typography";
-import { OrderContext } from "../../Context/orderContext";
-import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { IoIosSearch } from "react-icons/io";
 import { FaEye } from "react-icons/fa";
@@ -57,29 +52,20 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { useUpdatedStatusOrderContext } from "../../Context/UpdatedOrder";
 // import { useFormData } from "../../Context/statusFormContext";
 
-const YourComponent = ({ onBack, onNext, orderId }) => {
+const YourComponent = ({ orderId }) => {
   // Define state for orders, images, pdfPreview, errors, etc.
 
-  // const { orderIdDetails } = useContext(OrderContext);
-  const location = useLocation();
-
-  // Get orderId from either location state or context
-  // const { orderId } = location.state || {};
   const OrderID = orderId;
-  // const OrderID = orderId || orderIdDetails?.order?.OrderID;
-
-  const [selectedFiles, setSelectedFiles] = useState([]);
-
   const [images, setImages] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [pdfPreview, setPdfPreview] = useState(null);
+
   const [errors, setErrors] = useState({});
   const [orders, setOrders] = useState([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [showModal, setShowModal] = useState(false);
-  const [popupMessage, setPopupMessage] = useState("");
+
   const [totalRecords, setTotalRecords] = useState("");
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
@@ -90,19 +76,15 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
 
   const {
     generatedId,
-    customerId,
     orderDate,
     designerName,
     setDesignerName,
     desginerID,
     setDesginerID,
-    statusID,
-    setStatusID,
-    setcCustomerId,
-    setRoleID,
     roleID,
     AdvanceAmount,
-    setAdvanceAmount,
+    BalanceAmount,
+    TotalAmount,
   } = useContext(IdContext);
   const [orderStatusList, setOrderStatusList] = useState([]);
   const [results, setResults] = useState([]);
@@ -125,6 +107,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     UploadDocument: "",
     StartDate: new Date().toISOString().split("T")[0], // Set StartDate to today's date in YYYY-MM-DD format
   });
+
   useEffect(() => {
     const fetchOrderStatuses = async () => {
       try {
@@ -256,8 +239,13 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     const { DeliveryDate, Comments, RoleID } = formOrderDetails;
 
     // Parse AdvanceAmount and set a default value of 0 if undefined/null
-    const advanceAmountValue = Math.floor(parseFloat(AdvanceAmount || "0.00")); // Parsing to ensure it's a number
+    // const advanceAmountValue = Math.floor(parseFloat(AdvanceAmount || "0.00")); // Parsing to ensure it's a number
+ 
+ const advanceAmountValue = Math.floor(parseFloat(AdvanceAmount || "0.00")); 
+ const totalAmountValue = Math.floor(parseFloat(TotalAmount || "0.00"));
 
+ // Calculate 30% of the total amount
+ const minimumAdvanceRequired = Math.floor(totalAmountValue * 0.3);
     // Check the selected order status and advance amount
     const selectedOrderStatus = orderStatusList.find(
       (status) => status.StatusID === selectedStatus
@@ -270,15 +258,24 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     }
 
     // Ensure the selectedOrderStatus is not null or undefined
-    if (
-      selectedOrderStatus &&
-      selectedOrderStatus.OrderStatus === "Production" &&
-      advanceAmountValue === 0
-    ) {
-      setShowAdvancePopup(true);
-      return; // Exit function to prevent further processing
-    } else {
-    }
+if (selectedOrderStatus) {
+  // Advance payment check for "Production" status
+  if (
+    selectedOrderStatus.OrderStatus === "Production" &&
+    advanceAmountValue < minimumAdvanceRequired
+  ) {
+    setShowAdvancePopup(true);
+    return; // Exit function to prevent further processing
+  }
+
+  // Balance payment check for "PDI" status
+  if (selectedOrderStatus.OrderStatus === "PDI" && BalanceAmount > 0) {
+    setShowAdvancePopup(true); // Show balance payment popup
+  
+    return; // Exit function to prevent further processing
+  }
+}
+
     // Proceed with creating or updating order history only if pop-up condition is not met
     const userId = localStorage.getItem("UserID");
     // Create a new FormData object
@@ -1078,31 +1075,24 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     // You can also reset the file input if needed
     document.getElementById("UploadFiles").value = "";
   };
-  // const handleSendEmail = async () => {
-  //   try {
-  //     // Make an API call to trigger the email sending
-  //     await axios.post('/api/send-email', {
-  //       OrderID:OrderID,
-  //     });
 
-  //     setShowAdvancePopup(false); // Close the popup after sending the email
-  //     alert('Email sent successfully');
-  //   } catch (error) {
-  //     console.error('Error sending email:', error);
-  //     alert('Failed to send email');
-  //   }
-  // };
-
-  const handleSendEmail = async () => {
+  const handleSendEmail = async (status) => {
     try {
-      // Make an API call to trigger the email sending
-      await axios.post(emailForProduction, {
+      let apiEndpoint = emailForProduction; // Default email API
+      let successMessage = "Advance payment email sent successfully";
+  
+      if (status === "PDI") {
+        apiEndpoint = emailForBalancePayment; // Change API for balance payment
+        successMessage = "Balance payment remainder email sent successfully";
+      }
+  
+      await axios.post(apiEndpoint, {
         OrderID: OrderID,
       });
-
+  
       setShowAdvancePopup(false); // Close the popup after sending the email
-      // Show success toast message
-      toast.success("Email sent successfully", {
+  
+      toast.success(successMessage, {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: true,
@@ -1111,7 +1101,6 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
       });
     } catch (error) {
       console.error("Error sending email:", error);
-      // Show error toast message
       toast.error("Failed to send email", {
         position: "top-right",
         autoClose: 5000,
@@ -1121,7 +1110,7 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
       });
     }
   };
-
+  
   const [holidays, setHolidays] = useState([]);
   const fetchHolidays = async () => {
     try {
@@ -1193,7 +1182,9 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
     if (!date) return "";
     return new Date(date).toISOString().split("T")[0];
   };
-
+  const selectedOrderStatus = orderStatusList.find(
+    (status) => status.StatusID === selectedStatus
+  );
   return (
     <Box
       sx={{
@@ -1206,42 +1197,42 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
       }}
     >
       {isLoading && <LoadingAnimation />}
-      
+     
         {showAdvancePopup && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md flex flex-col">
-              <h2 className="text-lg font-bold mb-4">
-                Advance Payment Reminder
-              </h2>
-              <p className="text-gray-700 mb-4">
-                You have approved the final measurementsbare; however, we have
-                not yet received the advance payment. To proceed with
-                production, an advance payment of 30% of the total amount is
-                required. We kindly request you to make the payment at the
-                earliest to avoid any delays. Please let us know if you need any
-                assistance with the payment process.
-              </p>
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
+    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md flex flex-col">
+      <h2 className="text-lg font-bold mb-4">
+        {selectedOrderStatus.OrderStatus === "PDI"
+          ? "Balance Payment Reminder"
+          : "Advance Payment Reminder"}
+      </h2>
 
-              {/* Buttons container */}
-              <div className="mt-auto flex justify-end space-x-4">
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                  onClick={handleSendEmail}
-                >
-                  Send Email
-                </button>
+      <p className="text-gray-700 mb-4">
+        {selectedOrderStatus.OrderStatus === "PDI"
+          ? "Your order is ready for final delivery. Please clear the balance payment at the earliest."
+          : "To proceed with production, an advance payment of 30% of the total amount is required. Please make the payment to avoid delays."}
+      </p>
 
-                <button
-                  type="button"
-                  onClick={() => setShowAdvancePopup(false)}
-                  className="button-base cancel-btn"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+      <div className="mt-auto flex justify-end space-x-4">
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          onClick={() => handleSendEmail(selectedOrderStatus.OrderStatus)}
+        >
+          Send Email
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowAdvancePopup(false)}
+          className="button-base cancel-btn"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
         <div>
           <div className="flex">
             <div className="flex flex-col items-center flex-1 sm:ml-0 lg:ml-5 gap-6">
@@ -1908,12 +1899,32 @@ const YourComponent = ({ onBack, onNext, orderId }) => {
                               key={docIndex}
                               className="flex items-center mb-0"
                             >
-                              <IconButton href={url} download color="success">
-                                <FiDownload size={20} />
-                                <span className="ml-2 font-bold text-sm">
-                                  Download
-                                </span>
-                              </IconButton>
+                             
+                           <IconButton
+  onClick={async () => {
+    try {
+      const response = await fetch(url, { mode: "cors" }); // Ensure CORS is allowed
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", url.split("/").pop()); // Extracts filename
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl); // Clean up
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  }}
+  color="success"
+>
+  <FiDownload size={20} />
+  <span className="ml-2 font-bold text-sm">Download</span>
+</IconButton>
+
+
+                              
                             </div>
                           ))
                         ) : (

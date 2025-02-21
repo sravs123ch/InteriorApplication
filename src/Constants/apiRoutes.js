@@ -83,6 +83,7 @@ export const createProject=`${BASE_URL}/ProjectTypeRoutes/addProjectType`;
 export const updateProject=`${BASE_URL}/ProjectTypeRoutes/updateProjectType`;
 export const deleteProjectType=`${BASE_URL}/ProjectTypeRoutes/deleteProjectType`;
 export const getProjectTypeById=`${BASE_URL}/ProjectTypeRoutes/getProjectTypeById`;
+
 export const emailForProduction=`${BASE_URL}/orders/triggerAdvanceMeasurementPaymentEmail`;
 
 export const GetAllReference=`${BASE_URL}/referenceRoutes/getAllData`;
@@ -121,8 +122,7 @@ export const TRIGGER_MAIL=`${BASE_URL}/orders/schedulePreDeliveryNotifications`;
 export const GetAllChildrenByParentId=`${BASE_URL}/referenceRoutes/getChildrenByParentId`;
 
 
-export const BalancePayment=`${BASE_URL}/orderhistory/checkPaymentStatusAndSendEmail`;
-
+export const emailForBalancePayment=`${BASE_URL}/orderhistory/checkPaymentStatusAndSendEmail`;
 
 
 export const CreateEnquirydepartment=`${BASE_URL}/enquirydepartment/CreateEnquirydepartment`;
@@ -131,3 +131,7 @@ export const GetAllEnquirydepartment=`${BASE_URL}/enquirydepartment/getAllEnquir
 export const GetbyidEnquirydepartment=`${BASE_URL}/enquirydepartment/getbyidEnquirydepartment`;
 export const GetEnquirydepartmentbyCustomer=`${BASE_URL}/enquirydepartment/getEnquirydepartmentbyCustomer`;
 
+export const DashboardOrderStatus=`${BASE_URL}/orders/order-status-counts`;
+
+export const CustomerStatusCount=`${BASE_URL}/customers/customer-status-counts`;
+export const SendEmailToUser=`${BASE_URL}/enquirydepartment/send-email-to-user`;

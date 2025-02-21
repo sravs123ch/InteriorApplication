@@ -17,7 +17,7 @@ import LoadingAnimation from "../../components/Loading/LoadingAnimation";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import CloseIcon from "@mui/icons-material/Close";
-import Step2 from './customerStatus';
+import Step2 from "./customerStatus";
 
 import {
   Table,
@@ -35,7 +35,8 @@ import {
   ORDERBYCUSTOMERID_API,
   ADDRESS_API,
   CUSTOMERID_API,
-  GetAllParentReference,GetAllChildrenByParentId
+  GetAllParentReference,
+  GetAllChildrenByParentId,
 } from "../../Constants/apiRoutes";
 import { MdOutlineCancel } from "react-icons/md";
 import {
@@ -48,7 +49,7 @@ import { showSuccessToast, showErrorToast } from "../../toastNotifications";
 import { DataContext } from "../../Context/DataContext";
 import { useParams } from "react-router-dom";
 
-const steps = ["Customer Details", "Address","Assigned Department", "Orders"];
+const steps = ["Customer Details", "Address", "Assigned Department", "Orders"];
 const genderOptions = [
   { id: "M", name: "Male" },
   { id: "F", name: "Female" },
@@ -104,8 +105,9 @@ function AddCustomers() {
     Alternative_PhoneNumber: "",
     ReferedBy: "",
     SubReference: "",
-    ReferredByID:"",
-    CustomerStatus:"",
+    ReferredByID: "",
+    CustomerStatus: "",
+    ReferedByName:"", 
   });
 
   const [addressFormData, setAddressFormData] = useState({
@@ -162,23 +164,25 @@ function AddCustomers() {
   const [selectedStore, setSelectedStore] = useState("");
   const [dependenciesLoaded, setDependenciesLoaded] = useState(false);
   // State to hold selected status
-  const [selectedStatus, setSelectedStatus] = useState( customerFormData.CustomerStatus || "");
+  const [selectedStatus, setSelectedStatus] = useState(
+    customerFormData.CustomerStatus || ""
+  );
 
-//  const handleStatusChange = (status) => {
-//   setSelectedStatus(status);
-//   setCustomerFormData((prevData) => ({
-//     ...prevData,
-//     CustomerStatus: status.name, // Store only the name
-//   }));
-// };
-const handleStatusChange = (status) => {
-  setSelectedStatus(status);
-  setCustomerFormData((prevData) => ({
-    ...prevData,
-    CustomerStatus: status.name, // Store only the name
-  }));
-};
-  
+  //  const handleStatusChange = (status) => {
+  //   setSelectedStatus(status);
+  //   setCustomerFormData((prevData) => ({
+  //     ...prevData,
+  //     CustomerStatus: status.name, // Store only the name
+  //   }));
+  // };
+  const handleStatusChange = (status) => {
+    setSelectedStatus(status);
+    setCustomerFormData((prevData) => ({
+      ...prevData,
+      CustomerStatus: status.name, // Store only the name
+    }));
+  };
+
   useEffect(() => {
     if (countriesData && statesData && citiesData) {
       setCountries(countriesData.data || []);
@@ -186,7 +190,6 @@ const handleStatusChange = (status) => {
       setCities(citiesData.data || []);
     }
   }, [countriesData, statesData, citiesData]);
-
 
   useEffect(() => {
     if (storesData) {
@@ -198,7 +201,6 @@ const handleStatusChange = (status) => {
     }
   }, [storesData]);
 
-
   useEffect(() => {
     // Check if dependencies are loaded
     if (stores?.length && genderOptions?.length && referralOptions?.length) {
@@ -206,7 +208,7 @@ const handleStatusChange = (status) => {
     }
   }, [stores, genderOptions, referralOptions]);
 
-useEffect(() => {
+  useEffect(() => {
     const fetchCustomerDetailsAndAddress = async () => {
       if (customerId === "new") {
         setCustomerFormData({});
@@ -256,7 +258,7 @@ useEffect(() => {
           setCustomerFormData({
             ...fetchedCustomerData,
           });
-          setSelectedStatus(selectedStatus||null);
+          setSelectedStatus(selectedStatus || null);
           setSelectedGender(selectedGender || null);
           setSelectedStore(selectedStore || null);
           setReferedBy(selectedReferral || "");
@@ -285,7 +287,6 @@ useEffect(() => {
     }
   }, [customerId, dependenciesLoaded]);
 
-  
   const handleReferralTypeChange = (type) => {
     setReferedBy(type); // Set the selected referral type
     setCustomerFormData({ ...customerFormData, ReferedBy: type });
@@ -618,7 +619,7 @@ useEffect(() => {
     if (customerFormData.CustomerID) {
       fetchOrders();
     }
-  }, [customerFormData.CustomerID]); 
+  }, [customerFormData.CustomerID]);
 
   const handleCountryChange = (selectedCountry) => {
     if (!selectedCountry) return;
@@ -684,8 +685,9 @@ useEffect(() => {
       Comments: "",
       Alternative_PhoneNumber: "",
       ReferedBy: "",
-      ReferredByID:"",
-      CustomerStatus:"",
+      ReferredByID: "",
+      ReferedByName :"",
+      CustomerStatus: "",
     });
 
     // Reset address form data
@@ -862,7 +864,8 @@ useEffect(() => {
     // }
     if (!customerFormData.Email || validateEmail(customerFormData.Email)) {
       // If email is invalid or empty, set error message
-      newErrors.EmailError = validateEmail(customerFormData.Email) || "Please enter a valid email.";
+      newErrors.EmailError =
+        validateEmail(customerFormData.Email) || "Please enter a valid email.";
     }
     if (!selectedGender) {
       newErrors.GenderError = "Gender is required.";
@@ -894,10 +897,9 @@ useEffect(() => {
     }
     if (!email.endsWith(".com")) {
       return "Email must end with '.com'.";
-    }  
+    }
     return null;
   };
-  
 
   const validateAddressData = () => {
     setErrors({});
@@ -955,8 +957,7 @@ useEffect(() => {
     fetchReferences();
   }, []);
   const customer =
-  location.state?.customerDetails?.customer || customerDetails?.customer;
-
+    location.state?.customerDetails?.customer || customerDetails?.customer;
 
   useEffect(() => {
     if (customer?.ReferredByID) {
@@ -970,7 +971,7 @@ useEffect(() => {
       });
     }
   }, [customer?.ReferredByID]);
-  
+
   useEffect(() => {
     // Set SubReference and SubReferenceID in form data
     if (customer?.SubReferenceID) {
@@ -994,32 +995,33 @@ useEffect(() => {
       });
     }
   }, [customerFormData.ReferredByID]);
-  
-  
+
   const fetchSubReferences = async (parentId) => {
     try {
-        const response = await axios.get(`${GetAllChildrenByParentId}/${parentId}`);
-        
-        // Filter active items only
-        const subReferenceData = Array.isArray(response.data.data)
-            ? response.data.data.filter(item => item.isActive) // Exclude inactive items
-            : [];
-        
-        setSubReferences(subReferenceData); // Set filtered sub-references
-        return subReferenceData; // Return filtered data if needed
-    } catch (error) {
-        console.error("Error fetching sub-references:", error);
-        return [];
-    }
-};
+      const response = await axios.get(
+        `${GetAllChildrenByParentId}/${parentId}`
+      );
 
-const handleParentChange = (selectedParent) => {
+      // Filter active items only
+      const subReferenceData = Array.isArray(response.data.data)
+        ? response.data.data.filter((item) => item.isActive) // Exclude inactive items
+        : [];
+
+      setSubReferences(subReferenceData); // Set filtered sub-references
+      return subReferenceData; // Return filtered data if needed
+    } catch (error) {
+      console.error("Error fetching sub-references:", error);
+      return [];
+    }
+  };
+
+  const handleParentChange = (selectedParent) => {
     const selectedId = selectedParent?.id || null;
     const selectedName = selectedParent?.name || "";
-  
+
     // Fetch sub-references for the selected parent
     if (selectedId) fetchSubReferences(selectedId);
-  
+
     setCustomerFormData((prevDetails) => ({
       ...prevDetails,
       ReferedBy: selectedName,
@@ -1032,33 +1034,32 @@ const handleParentChange = (selectedParent) => {
   const handleSubReferenceChange = (selectedSub) => {
     const selectedSubId = selectedSub?.id || "";
     const selectedSubName = selectedSub?.name || "";
-  
+
     setCustomerFormData((prevDetails) => ({
       ...prevDetails,
       SubReference: selectedSubName,
       SubReferenceID: selectedSubId,
     }));
   };
- // Retrieve the navbar-collapsed value from localStorage
- const storedCollapsed = localStorage.getItem('navbar-collapsed') === 'true';
+  // Retrieve the navbar-collapsed value from localStorage
+  const storedCollapsed = localStorage.getItem("navbar-collapsed") === "true";
 
- // Set the initial state based on the stored value
- const [isExpanded, setIsExpanded] = useState(!storedCollapsed);
+  // Set the initial state based on the stored value
+  const [isExpanded, setIsExpanded] = useState(!storedCollapsed);
 
-
- useEffect(() => {
-   // Set the initial state based on the localStorage value
-   const storedCollapsed = localStorage.getItem('navbar-collapsed');
-   if (storedCollapsed !== null) {
-     setIsExpanded(storedCollapsed === 'false');
-   }
- }, []); // Only run this once on component mount
+  useEffect(() => {
+    // Set the initial state based on the localStorage value
+    const storedCollapsed = localStorage.getItem("navbar-collapsed");
+    if (storedCollapsed !== null) {
+      setIsExpanded(storedCollapsed === "false");
+    }
+  }, []); // Only run this once on component mount
   return (
     <>
       {/* <div className="main-container"> */}
       <div
-      className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}
-    >
+        className={`main-container ${isExpanded ? "expanded" : "collapsed"}`}
+      >
         <ToastContainer />
         <Box sx={{ width: "100%" }}>
           <Stepper activeStep={activeStep} className="mb-6" alternativeLabel>
@@ -1351,9 +1352,9 @@ const handleParentChange = (selectedParent) => {
                         }`}
                       />
                     </div>
-                    {/* Email */}
-                    {/* <div>
-                      <div className="flex  sm:items-center gap-4 w-full flex-col sm:flex-row">
+                  
+                    <div>
+                      <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row">
                         <label className="w-1/3 text-xs font-medium text-gray-700">
                           Email <span className="text-red-500">*</span>
                         </label>
@@ -1363,44 +1364,20 @@ const handleParentChange = (selectedParent) => {
                           value={customerFormData.Email}
                           onChange={handleCustomerFormChange}
                           className={`p-1 w-full border rounded-md ${
-                            errors.EmailError && !customerFormData.Email
+                            errors.EmailError
                               ? "border-red-500"
                               : "border-gray-400"
                           }`}
                         />
                       </div>
-                      <div className="w-full flex sm:pr-[122px] justify-start sm:justify-center sm:mr-4">
-                        {errors.EmailError && !customerFormData.Email && (
-                          <p className="text-red-500 text-sm mt-1 ">
+                      {errors.EmailError && (
+                        <div className="w-full flex sm:pr-[122px] justify-start sm:justify-center sm:mr-4">
+                          <p className="text-red-500 text-sm mt-1">
                             {errors.EmailError}
                           </p>
-                        )}
-                      </div>
-                    </div> */}
-
-<div>
-  <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row">
-    <label className="w-1/3 text-xs font-medium text-gray-700">
-      Email <span className="text-red-500">*</span>
-    </label>
-    <input
-      type="email"
-      name="Email"
-      value={customerFormData.Email}
-      onChange={handleCustomerFormChange}
-      className={`p-1 w-full border rounded-md ${errors.EmailError ? "border-red-500" : "border-gray-400"}`}
-    />
-  </div>
-  {errors.EmailError && (
-    <div className="w-full flex sm:pr-[122px] justify-start sm:justify-center sm:mr-4">
-      <p className="text-red-500 text-sm mt-1">
-        {errors.EmailError}
-      </p>
-    </div>
-  )}
-</div>
-
-                 
+                        </div>
+                      )}
+                    </div>
                     {/* Gender */}
                     <div>
                       <div className="flex  sm:items-center gap-4 w-full flex-col sm:flex-row">
@@ -1480,178 +1457,231 @@ const handleParentChange = (selectedParent) => {
                         )}
                       </div>
                     </div>
-                
-                    <div className="flex flex-col gap-4 w-full">
-  {/* Reference Dropdown */}
-  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
+
+                                        {/* Referred By Name */}
+  <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row mt-2">
     <label className="w-1/3 text-xs font-medium text-gray-700">
-      Reference <span className="text-red-500">*</span>
+      Referred By Name
     </label>
-
-    <Combobox
-  value={customerFormData.ReferedBy || ""}
-  onChange={(selectedOption) => {
-    const selectedId = selectedOption?.id;
-    const selectedName = selectedOption?.name;
-
-    if (selectedId) {
-      fetchSubReferences(selectedId);
-    }
-    setSubReferences([]); // Reset child dropdown on parent change
-    setCustomerFormData((prevDetails) => ({
-      ...prevDetails,
-      ReferedBy: selectedName || "",
-      ReferredByID: selectedId || "",
-    }));
-    setSubReferredByID(selectedId);
-  }}
->
-  <div className="relative w-full">
-    <Combobox.Input
-      className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
-        errors.ReferedBy ? "ring-red-400" : "ring-gray-400"
+    <input
+      type="text"
+      name="ReferedByName"
+     
+      value={customerFormData?.ReferedByName || ""}
+      onChange={handleCustomerFormChange}
+      className={`p-1 w-full border rounded-md ${
+        error ? "border-red-500" : "border-gray-400"
       }`}
-      onChange={(event) => setQuery(event.target.value)}
-      displayValue={(option) => option || "Select Reference"}
-      placeholder="Select Reference"
-      aria-label="Reference"
     />
-    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-      <ChevronUpDownIcon
-        className="h-5 w-5 text-gray-400"
-        aria-hidden="true"
-      />
-    </Combobox.Button>
-    <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-      {referralOptions.length > 0 ? (
-        referralOptions.map((option) => (
-          <Combobox.Option
-            key={option.id}
-            value={option}
-            className={({ active }) =>
-              `relative cursor-default select-none py-2 pl-3 pr-9 ${
-                active ? "bg-indigo-600 text-white" : "text-gray-900"
-              }`
-            }
-          >
-            {({ selected, active }) => (
-              <>
-                <span
-                  className={`block truncate ${
-                    selected ? "font-semibold" : "font-normal"
-                  }`}
-                >
-                  {option.name}
-                </span>
-                {selected && (
-                  <span
-                    className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
-                      active ? "text-white" : "text-indigo-600"
-                    }`}
-                  >
-                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                )}
-              </>
-            )}
-          </Combobox.Option>
-        ))
-      ) : (
-        <p className="py-2 pl-3 pr-9 text-gray-500">No options available</p>
-      )}
-    </Combobox.Options>
   </div>
-</Combobox>
-{errors.ReferedBy && (
-  <p className="text-red-500 text-sm mt-1">{errors.ReferedBy}</p>
-)}
+                    <div className="flex flex-col gap-4 w-full">
+                      {/* Reference Dropdown */}
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
+                        <label className="w-1/3 text-xs font-medium text-gray-700">
+                          Reference <span className="text-red-500">*</span>
+                        </label>
 
-  </div>
+                        <Combobox
+                          value={customerFormData.ReferedBy || ""}
+                          onChange={(selectedOption) => {
+                            const selectedId = selectedOption?.id;
+                            const selectedName = selectedOption?.name;
 
-  {/* Sub-Reference Dropdown */}
-  {subReferences.length > 0 && (
-<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
-  <label className="w-1/3 text-xs font-medium text-gray-700">
-    Sub-Reference
-  </label>
+                            if (selectedId) {
+                              fetchSubReferences(selectedId);
+                            }
+                            setSubReferences([]); // Reset child dropdown on parent change
+                            setCustomerFormData((prevDetails) => ({
+                              ...prevDetails,
+                              ReferedBy: selectedName || "",
+                              ReferredByID: selectedId || "",
+                            }));
+                            setSubReferredByID(selectedId);
+                          }}
+                        >
+                          <div className="relative w-full">
+                            <Combobox.Input
+                              className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
+                                errors.ReferedBy
+                                  ? "ring-red-400"
+                                  : "ring-gray-400"
+                              }`}
+                              onChange={(event) => setQuery(event.target.value)}
+                              displayValue={(option) =>
+                                option || "Select Reference"
+                              }
+                              placeholder="Select Reference"
+                              aria-label="Reference"
+                            />
+                            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                              <ChevronUpDownIcon
+                                className="h-5 w-5 text-gray-400"
+                                aria-hidden="true"
+                              />
+                            </Combobox.Button>
+                            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                              {referralOptions.length > 0 ? (
+                                referralOptions.map((option) => (
+                                  <Combobox.Option
+                                    key={option.id}
+                                    value={option}
+                                    className={({ active }) =>
+                                      `relative cursor-default select-none py-2 pl-3 pr-9 ${
+                                        active
+                                          ? "bg-indigo-600 text-white"
+                                          : "text-gray-900"
+                                      }`
+                                    }
+                                  >
+                                    {({ selected, active }) => (
+                                      <>
+                                        <span
+                                          className={`block truncate ${
+                                            selected
+                                              ? "font-semibold"
+                                              : "font-normal"
+                                          }`}
+                                        >
+                                          {option.name}
+                                        </span>
+                                        {selected && (
+                                          <span
+                                            className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
+                                              active
+                                                ? "text-white"
+                                                : "text-indigo-600"
+                                            }`}
+                                          >
+                                            <CheckIcon
+                                              className="h-5 w-5"
+                                              aria-hidden="true"
+                                            />
+                                          </span>
+                                        )}
+                                      </>
+                                    )}
+                                  </Combobox.Option>
+                                ))
+                              ) : (
+                                <p className="py-2 pl-3 pr-9 text-gray-500">
+                                  No options available
+                                </p>
+                              )}
+                            </Combobox.Options>
+                          </div>
+                        </Combobox>
+                        {errors.ReferedBy && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.ReferedBy}
+                          </p>
+                        )}
+                      </div>
 
-  <Combobox
-  value={subReferences.find((item) => item.id === customerFormData.SubReferenceID) || null}
-  onChange={(selectedOption) => {
-    const selectedSubId = selectedOption?.id;
-    const selectedSubName = selectedOption?.name;
+                      {/* Sub-Reference Dropdown */}
+                      {subReferences.length > 0 && (
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
+                          <label className="w-1/3 text-xs font-medium text-gray-700">
+                            Sub-Reference
+                          </label>
 
-    setCustomerFormData((prevDetails) => ({
-      ...prevDetails,
-      SubReference: selectedSubName || "",
-      SubReferenceID: selectedSubId || "",
-    }));
-  }}
->
-  <div className="relative w-full">
-    <Combobox.Input
-      className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
-        errors.SubReference ? "ring-red-400" : "ring-gray-400"
-      }`}
-      onChange={(event) => setChildQuery(event.target.value)}
-      displayValue={(option) => option?.name || ""}
-      placeholder="Select Sub-Reference"
-      aria-label="Sub-Reference"
-    />
-    <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-      <ChevronUpDownIcon
-        className="h-5 w-5 text-gray-400"
-        aria-hidden="true"
-      />
-    </Combobox.Button>
-    <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-      {subReferences.length > 0 ? (
-        subReferences.map((option) => (
-          <Combobox.Option
-            key={option.id}
-            value={option}
-            className={({ active }) =>
-              `relative cursor-default select-none py-2 pl-3 pr-9 ${
-                active ? "bg-indigo-600 text-white" : "text-gray-900"
-              }`
-            }
-          >
-            {({ selected, active }) => (
-              <>
-                <span
-                  className={`block truncate ${
-                    selected ? "font-semibold" : "font-normal"
-                  }`}
-                >
-                  {option.name}
-                </span>
-                {selected && (
-                  <span
-                    className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
-                      active ? "text-white" : "text-indigo-600"
-                    }`}
-                  >
-                    <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                )}
-              </>
-            )}
-          </Combobox.Option>
-        ))
-      ) : (
-        <p className="py-2 pl-3 pr-9 text-gray-500">No options available</p>
-      )}
-    </Combobox.Options>
-  </div>
-</Combobox>
+                          <Combobox
+                            value={
+                              subReferences.find(
+                                (item) =>
+                                  item.id === customerFormData.SubReferenceID
+                              ) || null
+                            }
+                            onChange={(selectedOption) => {
+                              const selectedSubId = selectedOption?.id;
+                              const selectedSubName = selectedOption?.name;
 
-  {errors.SubReference && (
-    <p className="text-red-500 text-sm mt-1">{errors.SubReference}</p>
-  )}
-</div>
+                              setCustomerFormData((prevDetails) => ({
+                                ...prevDetails,
+                                SubReference: selectedSubName || "",
+                                SubReferenceID: selectedSubId || "",
+                              }));
+                            }}
+                          >
+                            <div className="relative w-full">
+                              <Combobox.Input
+                                className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
+                                  errors.SubReference
+                                    ? "ring-red-400"
+                                    : "ring-gray-400"
+                                }`}
+                                onChange={(event) =>
+                                  setChildQuery(event.target.value)
+                                }
+                                displayValue={(option) => option?.name || ""}
+                                placeholder="Select Sub-Reference"
+                                aria-label="Sub-Reference"
+                              />
+                              <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                                <ChevronUpDownIcon
+                                  className="h-5 w-5 text-gray-400"
+                                  aria-hidden="true"
+                                />
+                              </Combobox.Button>
+                              <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                                {subReferences.length > 0 ? (
+                                  subReferences.map((option) => (
+                                    <Combobox.Option
+                                      key={option.id}
+                                      value={option}
+                                      className={({ active }) =>
+                                        `relative cursor-default select-none py-2 pl-3 pr-9 ${
+                                          active
+                                            ? "bg-indigo-600 text-white"
+                                            : "text-gray-900"
+                                        }`
+                                      }
+                                    >
+                                      {({ selected, active }) => (
+                                        <>
+                                          <span
+                                            className={`block truncate ${
+                                              selected
+                                                ? "font-semibold"
+                                                : "font-normal"
+                                            }`}
+                                          >
+                                            {option.name}
+                                          </span>
+                                          {selected && (
+                                            <span
+                                              className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
+                                                active
+                                                  ? "text-white"
+                                                  : "text-indigo-600"
+                                              }`}
+                                            >
+                                              <CheckIcon
+                                                className="h-5 w-5"
+                                                aria-hidden="true"
+                                              />
+                                            </span>
+                                          )}
+                                        </>
+                                      )}
+                                    </Combobox.Option>
+                                  ))
+                                ) : (
+                                  <p className="py-2 pl-3 pr-9 text-gray-500">
+                                    No options available
+                                  </p>
+                                )}
+                              </Combobox.Options>
+                            </div>
+                          </Combobox>
 
-  )}
-</div>
+                          {errors.SubReference && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {errors.SubReference}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
 
 
@@ -1669,58 +1699,83 @@ const handleParentChange = (selectedParent) => {
                       />
                     </div>
                     <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row">
-        <label className="w-1/3 text-xs font-medium text-gray-700">
-          Customer Status <span className="text-red-500">*</span>
-        </label>
-        <Combobox value={selectedStatus} onChange={handleStatusChange}>
-          <div className="relative w-full">
-            <Combobox.Input
-              className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
-                errors.statusError && !selectedStatus
-                  ? "ring-red-400"
-                  : "ring-gray-400"
-              }`}
-              displayValue={(status) => (status ? status.name : "")}
-            />
-            <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-            </Combobox.Button>
-            <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-              {customerStatusOptions.map((status) => (
-                <Combobox.Option
-                  key={status.id}
-                  className={({ active }) =>
-                    `relative cursor-default select-none py-2 pl-3 pr-9 ${
-                      active ? "bg-indigo-600 text-white" : "text-gray-900"
-                    }`
-                  }
-                  value={status}
-                >
-                  {({ selected, active }) => (
-                    <>
-                      <span className={`block truncate ${selected ? "font-semibold" : "font-normal"}`}>
-                        {status.name}
-                      </span>
-                      {selected && (
-                        <span className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
-                          active ? "text-white" : "text-indigo-600"
-                        }`}>
-                          <CheckIcon className="h-5 w-5" aria-hidden="true" />
-                        </span>
+                      <label className="w-1/3 text-xs font-medium text-gray-700">
+                        Customer Status <span className="text-red-500">*</span>
+                      </label>
+                      <Combobox
+                        value={selectedStatus}
+                        onChange={handleStatusChange}
+                      >
+                        <div className="relative w-full">
+                          <Combobox.Input
+                            className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
+                              errors.statusError && !selectedStatus
+                                ? "ring-red-400"
+                                : "ring-gray-400"
+                            }`}
+                            displayValue={(status) =>
+                              status ? status.name : ""
+                            }
+                          />
+                          <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                            <ChevronUpDownIcon
+                              className="h-5 w-5 text-gray-400"
+                              aria-hidden="true"
+                            />
+                          </Combobox.Button>
+                          <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                            {customerStatusOptions.map((status) => (
+                              <Combobox.Option
+                                key={status.id}
+                                className={({ active }) =>
+                                  `relative cursor-default select-none py-2 pl-3 pr-9 ${
+                                    active
+                                      ? "bg-indigo-600 text-white"
+                                      : "text-gray-900"
+                                  }`
+                                }
+                                value={status}
+                              >
+                                {({ selected, active }) => (
+                                  <>
+                                    <span
+                                      className={`block truncate ${
+                                        selected
+                                          ? "font-semibold"
+                                          : "font-normal"
+                                      }`}
+                                    >
+                                      {status.name}
+                                    </span>
+                                    {selected && (
+                                      <span
+                                        className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
+                                          active
+                                            ? "text-white"
+                                            : "text-indigo-600"
+                                        }`}
+                                      >
+                                        <CheckIcon
+                                          className="h-5 w-5"
+                                          aria-hidden="true"
+                                        />
+                                      </span>
+                                    )}
+                                  </>
+                                )}
+                              </Combobox.Option>
+                            ))}
+                          </Combobox.Options>
+                        </div>
+                      </Combobox>
+                    </div>
+                    <div className="w-full flex sm:pr-[158px] justify-start sm:justify-center sm:mr-4">
+                      {errors.statusError && !selectedStatus && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.statusError}
+                        </p>
                       )}
-                    </>
-                  )}
-                </Combobox.Option>
-              ))}
-            </Combobox.Options>
-          </div>
-        </Combobox>
-      </div>
-      <div className="w-full flex sm:pr-[158px] justify-start sm:justify-center sm:mr-4">
-        {errors.statusError && !selectedStatus && (
-          <p className="text-red-500 text-sm mt-1">{errors.statusError}</p>
-        )}
-      </div>
+                    </div>
                     {/* <div></div> */}
                     <div></div>{" "}
                     <div className=" flex items-center gap-4  w-full"></div>
@@ -2141,73 +2196,8 @@ const handleParentChange = (selectedParent) => {
                     </TableContainer>
                   </div>
                 )}
-
-                {/* {activeStep === 2 && (
-                  <>
-                    <TableContainer
-                      component={Paper}
-                      sx={{ width: "90%", margin: "0 auto", mt: 4 }}
-                    >
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <StyledTableCell>Order Name</StyledTableCell>
-                            <StyledTableCell>Order Date</StyledTableCell>
-                            <StyledTableCell>Total Amount</StyledTableCell>
-                            <StyledTableCell>Order Status</StyledTableCell>
-                          </TableRow>
-                        </TableHead>
-
-                        <TableBody>
-                          {Array.isArray(orders) && orders.length > 0 ? (
-                            orders.map((order) => (
-                              <StyledTableRow key={order.OrderID}>
-                                <StyledTableCell>
-                                  {order.OrderNumber}
-                                </StyledTableCell>
-                                <StyledTableCell>
-                                  {new Date(
-                                    order.OrderDate
-                                  ).toLocaleDateString()}
-                                </StyledTableCell>
-                                <StyledTableCell>
-                                  &#8377;{order.TotalAmount}
-                                </StyledTableCell>
-                                <StyledTableCell>
-                                  {order.OrderStatus}
-                                </StyledTableCell>
-                              </StyledTableRow>
-                            ))
-                          ) : (
-                            <TableRow>
-                              <StyledTableCell
-                                colSpan={6}
-                                style={{ textAlign: "center" }}
-                              >
-                                No orders found
-                              </StyledTableCell>
-                            </TableRow>
-                          )}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                 
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="button-base cancel-btn"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                    {isLoading && <LoadingAnimation />}
-                  </>
-                )} */}
-                  {activeStep === 2 && (
-              <Step2 onBack={handleBack} />
-            )}
-                  {activeStep === 3 && (
+                {activeStep === 2 && <Step2 onBack={handleBack} />}
+                {activeStep === 3 && (
                   <>
                     <TableContainer
                       component={Paper}

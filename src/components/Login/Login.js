@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import Logo from "../../assests/Images/imly-logo-new.jpg";
 import image from "../../assests/Images/imly-two.png";
 import { useNavigate } from "react-router-dom";
@@ -12,9 +12,9 @@ import {
   GETALLSTORES_API,
   LOGIN,
   STATES_API,
-  GETALLUSERSBYID_API,
+ 
 } from "../../Constants/apiRoutes";
-import axios from "axios";
+
 import LoadingAnimation from "../Loading/LoadingAnimation";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -25,10 +25,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, setLogindata } = useAuth();
+  const { login } = useAuth();
   const [isStoreDataLoading, setIsStoreDataLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isUserDataLoading, setIsUserDataLoading] = useState(false);
+
 
   // Fetch data from the APIs if not present in local storage
   const fetchApiData = async () => {
@@ -95,53 +95,6 @@ const Login = () => {
       setIsStoreDataLoading(false);
     }
   };
-
-  // const fetchUserDetails = async () => {
-  //   setIsUserDataLoading(true);
-
-  //   // Retrieve userID from localStorage
-  //   const userID = localStorage.getItem("UserID");
-
-  //   if (!userID) {
-  //     console.error("UserID not found in local storage");
-  //     setIsUserDataLoading(false);
-  //     return null; // Return null if UserID is not found
-  //   }
-
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       console.error("No token found in localStorage.");
-  //       setIsUserDataLoading(false);
-  //       return null; // Return null if token is missing
-  //     }
-
-  //     const response = await fetch(`${GETALLUSERSBYID_API}/${userID}`, {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(`Error fetching user details: ${response.statusText}`);
-  //     }
-
-  //     const userData = await response.json();
-  //     const userDetails = userData?.user || null;
-
-  //     // Store user data in localStorage
-  //     localStorage.setItem("userData", JSON.stringify(userDetails));
-
-  //     return userDetails;
-  //   } catch (error) {
-  //     console.error("Error fetching user details:", error);
-  //     return null;
-  //   } finally {
-  //     setIsUserDataLoading(false);
-  //   }
-  // };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -304,7 +257,7 @@ const Login = () => {
 
                     <div>
                       <a
-                        href="#"
+                        href="/forgot-password"
                         onClick={handleForgotPassword}
                         className="text-sm text-gray-700 hover:underline focus:outline-none focus:underline focus:text-[#301607] px-2"
                       >
