@@ -150,8 +150,13 @@ const ProjectTable = () => {
   const toggleMenu = (projectTypeID) => {
     setActiveMenu(activeMenu === projectTypeID ? null : projectTypeID);
   };
+  const [isExpanded, setIsExpanded] = useState(() => {
+       const storedCollapsed = localStorage.getItem('navbar-collapsed');
+       return storedCollapsed !== 'true'; // Default to expanded if not set
+     });
   return (
-    <div ref={dropdownRef} className="main-container">
+    // <div ref={dropdownRef} className="main-container">
+    <div ref={dropdownRef} className={`main-container ${isExpanded ? 'expanded' : 'collapsed'}`}>
       <ToastContainer />{loading && <LoadingAnimation />}
       <div className="body-container">
         <h2 className="heading">Projects</h2>

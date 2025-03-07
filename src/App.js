@@ -11,6 +11,7 @@ import Stores from "./components/Stores/Stores";
 import Reports from "./components/Reports/Reports";
 import Payments from "./components/Payments/Payments";
 import Customer from "./components/Customer/Customer";
+import Followups from "./components/Customer/Followups";
 import Userform from "./components/User/Userform";
 import Storesform from "./components/Stores/Storeform";
 import { UserProvider } from "./Context/userContext";
@@ -18,7 +19,6 @@ import { StoreProvider } from "./Context/storeContext";
 import { CustomerProvider } from "./Context/customerContext";
 import { RoleProvider } from "./Context/roleContext";
 import RoleUser from "./components/UserRoles/UserRole";
-
 import { PaymentProvider } from "./Context/paymentContext";
 import Paymentform from "./components/Payments/Paymentform";
 import AddCustomers from "./components/Customer/AddCustomers";
@@ -110,6 +110,20 @@ function App() {
                                     }
                                   >
                                     <Customer />
+                                  </ProtectedRoute>
+                                }
+                              />
+
+<Route
+                                path="/Followups/:id"
+                                element={
+                                  <ProtectedRoute
+                                    // allowedRoles={[1]}
+                                    requiredPermission={
+                                      PERMISSIONS.VIEW_CUSTOMERS
+                                    }
+                                  >
+                                    <Followups/>
                                   </ProtectedRoute>
                                 }
                               />

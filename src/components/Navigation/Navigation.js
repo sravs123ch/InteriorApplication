@@ -356,6 +356,7 @@ export default function Navigation() {
         isCollapsed ? "lg:w-20 md:w-20 sm:w-20 w-20" : "lg:w-60 w-64"
       }`}
     >
+     
   <div className="flex flex-col grow px-4 pb-4 overflow-x-hidden overflow-y-auto" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
     <div className="fixed top-4 left-0 right-0 flex items-center justify-between px-4 z-50">
       {!isCollapsed ? (

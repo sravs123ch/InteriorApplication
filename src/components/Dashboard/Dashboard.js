@@ -178,8 +178,6 @@ const fetchCustomerStatusData = async () => {
     setLoading(true);
     const response = await axios.get(CustomerStatusCount, {
       params: {
-        StartDate: value.startDate,
-        EndDate: value.endDate,
         StoreIDs: Array.isArray(storeIDs) ? storeIDs : [storeIDs],
       },
     });
@@ -430,6 +428,13 @@ const fetchCustomerStatusData = async () => {
   const goToCustomers = () => {
     navigate("/Customer", { state: { fromDashboard: true } });
   };
+  // const goToFollowups = () => {
+  //   navigate("/Followups");
+  // };
+  const goToFollowups = () => {
+    navigate("/Followups/1");
+  };
+  
   const goToOrders = () => {
     navigate("/Orders");
   };
@@ -557,7 +562,7 @@ const fetchCustomerStatusData = async () => {
           {/* Icon & Text Container */}
           <div
             className="flex items-center justify-items-center p-6 py-3 w-full max-w-sm"
-            onClick={goToCustomers}
+            onClick={goToFollowups}
           >
             {/* Icon */}
             <RiUserFollowLine className="text-6xl text-white opacity-80 mr-4" />
@@ -565,13 +570,13 @@ const fetchCustomerStatusData = async () => {
             {/* Text Content */}
             <div>
               {/* <h1 className="text-2xl font-bold">100</h1> */}
-              <p className="text-2xl">{customerStatusData?.otherCount || 0}</p>
+              <p className="text-2xl">{customerStatusData?.followUpcount || 0}</p>
               <p className="text-lg text-white opacity-80 font-bold ml-1">
                 FOLLOW UP'S
               </p>
             </div>
             {/* <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p> */}
-            <p className="text-2xl absolute bottom-4 right-5 font-bold">{customerStatusData?.holdCount || 0}</p>
+            <p className="text-2xl absolute bottom-4 right-5 font-bold">{customerStatusData?.EnquiryCount|| 0}</p>
           </div>
           {/* Wave Effect */}
         </div>

@@ -67,6 +67,7 @@ const YourComponent = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [searchUserValue, setSearchUserValue] = useState(designerName || "");
+  const [attachDocument, setAttachDocument] = useState(false);
 
   const { updatedStatusOrderDetails} =
     useUpdatedStatusOrderContext();
@@ -79,155 +80,6 @@ const YourComponent = () => {
     UploadDocument: "",
     StartDate: new Date().toISOString().split("T")[0], // Set StartDate to today's date in YYYY-MM-DD format
   });
-
-//   const saveOrderHistory = async () => {
-//     const { DeliveryDate, Comments, EnquiryDepaermentID, UserID } =
-//       formOrderDetails; // Extract required details
-//  // console.log(formOrderDetails,"FOD")
-//  const validateOrderData = () => {
-//   const newErrors = {};
-
-//   if (!formOrderDetails.UserID) {
-//     newErrors.AssignToError = "Assigned to is required.";
-//   }
-
-//   if (!formOrderDetails.DeliveryDate) {
-//     newErrors.DeliveryDateError = "Delivery Date is required.";
-//   }
-
-//   // Set the errors in state
-//   setErrors(newErrors);
-
-//   // Return true if there are any errors, otherwise return false
-//   return Object.keys(newErrors).length > 0;
-// };
-
-//     // Validate the form data
-//     const hasErrors = validateOrderData();
-//     if (hasErrors) {
-//       return; // Stop if validation fails
-//     }
-
-//     // Prepare the data to be sent as JSON
-//     const orderData = {
-//       UserID: desginerID || UserID,
-//       EndDate: DeliveryDate,
-//       Comments: Comments || "", // Default empty if null
-//       CustomerID: customerId,
-//     };
-
-//     // Define the API URL and method based on edit mode
-//     let apiUrl = CreateEnquirydepartment; // Default to the create API
-//     let method = "POST"; // Default to POST for creating a new record
-
-//     if (editMode && EnquiryDepaermentID) {
-//       // If in edit mode and EnquiryDepaermentID exists, set for update
-//       apiUrl = `${UpdateEnquirydepartment}/${EnquiryDepaermentID}`;
-//       method = "PUT";
-//       orderData.EnquiryDepaermentID = EnquiryDepaermentID; // Include the ID for updating
-
-//       if (!customerId) {
-//         toast.error("CustomerID is required for update.", {
-//           position: "top-right",
-//           autoClose: 5000,
-//           hideProgressBar: false,
-//           closeOnClick: true,
-//           pauseOnHover: true,
-//           draggable: true,
-//           progress: undefined,
-//         });
-//         return;
-//       }
-
-//       orderData.CustomerID = customerId; // Include CustomerID for update
-//     } else if (editMode && !EnquiryDepaermentID) {
-//       toast.error("EnquiryDepartmentID is missing for update.", {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         progress: undefined,
-//       });
-//       return;
-//     }
-
-//     // Start loading spinner
-//     setIsLoading(true);
-//     try {
-//       // Make the API call (use the base URL without customerId in the path)
-//       const response = await fetch(apiUrl, {
-//         // Use only the base URL
-//         method,
-//         headers: {
-//           "Content-Type": "application/json", // Set content type to JSON
-//         },
-//         body: JSON.stringify(orderData), // Send the data as JSON
-//       });
-
-//       const data = await response.json(); // Parse JSON response
-
-//       // Handle error in the response
-//       if (data.StatusCode === "FAILURE" || data.error) {
-//         console.error("API error:", data); // Log the response for debugging
-//         toast.error(
-//           data.error || "Error occurred while processing the request.",
-//           {
-//             position: "top-right",
-//             autoClose: 5000,
-//             hideProgressBar: false,
-//             closeOnClick: true,
-//             pauseOnHover: true,
-//             draggable: true,
-//             progress: undefined,
-//           }
-//         );
-//         return;
-//       }
-
-//       // Success message
-//       toast.success(data.message || "Order history saved successfully!", {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         progress: undefined,
-//       });
-
-//       // Close the modal after success and reset form
-//       closeModalAndMoveToNextStep();
-//       setFormOrderDetails({ ...formOrderDetails, Comments: "" }); // Reset form
-//       fetchDepartmentDetails();
-//       setFormOrderDetails({
-//         ExpectedDays: "",
-//         DeliveryDate: "",
-//         Comments: "",
-//         AssignTo: "",
-//         UploadDocument: "",
-//         StartDate: new Date().toISOString().split("T")[0], // Reset StartDate to today's date
-//         UserID: "",
-//       });
-//     } catch (error) {
-//       // Handle unexpected errors
-//       console.error("Unexpected error:", error); // Log the error for debugging
-//       toast.error(error.message || "An unexpected error occurred.", {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         progress: undefined,
-//       });
-//     } finally {
-//       // Stop loading spinner
-//       setIsLoading(false);
-//     }
-//   };
-
 const saveOrderHistory = async () => {
   const { DeliveryDate, Comments, EnquiryDepaermentID, UserID, UploadDocument } =
     formOrderDetails; 
@@ -764,38 +616,95 @@ const saveOrderHistory = async () => {
     setOpenPopup(true);
   };
 
+  // const handleMailTrigger = async () => {
+  //   if (!selectedUser?.UserID || !subject.trim() || !message.trim()) {
+  //     toast.error("Please fill in all fields before sending.");
+  //     return;
+  //   }
+  
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     toast.error("No token found in local storage.");
+  //     return;
+  //   }
+  
+  //   // Construct the payload
+  //   const payload = {
+  //     userId: selectedUser.UserID,
+  //     customerId: selectedUser.CustomerID, // Assuming customerId is needed
+  //     subject: subject,
+  //     emailBody: message,
+  //   };
+  
+  //   // If the document checkbox is checked, append "{{DocumentURL}}" to emailBody
+  //   if (attachDocument && selectedUser.Document) {
+  //     payload.emailBody += `\n\nYour document is ready: {{DocumentURL}}`;
+  //   }
+  
+  //   try {
+  //     const response = await axios.post(SendEmailToUser, payload, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  
+  //     if (response.data.success) {
+  //       toast.success("Mail sent successfully!");
+  //       setOpenPopup(false);
+  //       setSubject(""); // Reset input fields
+  //       setMessage("");
+  //       setAttachDocument(false); // Reset checkbox
+  //     } else {
+  //       toast.error("Failed to trigger mail. Please try again.");
+  //       console.error("Failed to trigger mail:", response.data);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error sending mail. Please try again.");
+  //     console.error("Error triggering mail:", error);
+  //   }
+  // };
+  
   const handleMailTrigger = async () => {
     if (!selectedUser?.UserID || !subject.trim() || !message.trim()) {
       toast.error("Please fill in all fields before sending.");
       return;
     }
-
+  
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found in local storage.");
       return;
     }
-
+  
+    // Construct the payload
+    const payload = {
+      userId: selectedUser.UserID,
+      customerId: selectedUser.CustomerID, // Assuming customerId is needed
+      subject: subject,
+      emailBody: message,
+      includeDocument: attachDocument && selectedUser.Document ? true : false, // Include document flag
+    };
+  
+    // If the document checkbox is checked, append the document URL to the email body
+    // if (attachDocument && selectedUser.Document) {
+    //   payload.emailBody += `\n\nYour document is ready: ${selectedUser.Document}`;
+    // }
+  
     try {
-      const response = await axios.post(
-        SendEmailToUser,
-        {
-          userId: selectedUser.UserID,
-          subject: subject,
-          emailBody: message,
+      const response = await axios.post(SendEmailToUser, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+      });
+  
       if (response.data.success) {
         toast.success("Mail sent successfully!");
         setOpenPopup(false);
         setSubject(""); // Reset input fields
         setMessage("");
+        setAttachDocument(false); // Reset checkbox
       } else {
         toast.error("Failed to trigger mail. Please try again.");
         console.error("Failed to trigger mail:", response.data);
@@ -805,8 +714,8 @@ const saveOrderHistory = async () => {
       console.error("Error triggering mail:", error);
     }
   };
-
-
+  
+  
   return (
     <Box
       sx={{
@@ -1067,50 +976,107 @@ const saveOrderHistory = async () => {
           <>
             <TableContainer component={Paper} className="mt-4 shadow-md">
                                     
-        {/* Popup */}
-        {openPopup && selectedUser && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-96">
-          <h2 className="text-lg font-bold text-gray-800">Follow-up Confirmation</h2>
+      {openPopup && selectedUser && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-5 rounded-lg shadow-lg w-1/2">
+      <h2 className="text-lg font-bold text-gray-800">Follow-up Confirmation</h2>
 
-            {/* Subject Input */}
-            <label className="block text-gray-700 text-sm font-bold mt-2">Subject:</label>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Email subject"
-            />
+      {/* Subject Input */}
+      <label className="block text-gray-700 text-sm font-bold mt-2">Subject:</label>
+      <input
+        type="text"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Email subject"
+      />
 
-            {/* Message Input */}
-            <label className="block text-gray-700 text-sm font-bold mt-3">Message:</label>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="4"
-              placeholder="Email Body"
-            ></textarea>
+      {/* Message Input */}
+      <label className="block text-gray-700 text-sm font-bold mt-3">Message:</label>
+      <textarea
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        rows="4"
+        placeholder="Email Body"
+      ></textarea>
 
-            <div className="mt-4 flex justify-end space-x-2">
-              <button
-                className="cancel-btn text-white px-4 py-2 rounded-md"
-                onClick={() => setOpenPopup(false)}
-              >
-                Cancel
-              </button>
+      {/* Document Section */}
+      {selectedUser.Document ? (
+        <div className="mt-4 p-3 border rounded-md bg-gray-100">
+          {/* Document Checkbox */}
 
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                onClick={handleMailTrigger}
-              >
-                Send Email
-              </button>
-            </div>
+ {/* Document Checkbox and Heading in the Same Line */}
+<div className="mt-3 flex items-center space-x-2">
+  <input
+    type="checkbox"
+    id="attach-document"
+    checked={attachDocument}
+    onChange={() => setAttachDocument(!attachDocument)}
+    className="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+  />
+  <h3 className="text-sm font-bold text-gray-700">Attached Document:</h3>
+</div>
+
+          <div className="flex justify-between items-center mt-2">
+            {/* View Button */}
+            <a
+              href={selectedUser.Document}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              View Document
+            </a>
+
+            {/* Download Button */}
+            <button
+              onClick={async () => {
+                try {
+                  const response = await fetch(selectedUser.Document, { mode: "cors" });
+                  const blob = await response.blob();
+                  const blobUrl = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = blobUrl;
+                  link.setAttribute("download", selectedUser.Document.split("/").pop());
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(blobUrl);
+                } catch (error) {
+                  console.error("Error downloading file:", error);
+                }
+              }}
+              className="text-white bg-green-500 px-3 py-1 rounded-md hover:bg-green-600"
+            >
+              Download
+            </button>
           </div>
         </div>
+      ) : (
+        <p className="text-sm text-gray-500 mt-3">No Document Attached</p>
       )}
+
+      {/* Buttons */}
+      <div className="mt-4 flex justify-end space-x-2">
+        <button
+          className="cancel-btn text-white px-4 py-2 rounded-md"
+          onClick={() => setOpenPopup(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+          onClick={handleMailTrigger}
+        >
+          Send Email
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
               <Table
                 aria-label="orders table"
                 className="min-w-full border-collapse border border-gray-300"
@@ -1135,7 +1101,7 @@ const saveOrderHistory = async () => {
                         fontWeight: "bold",
                       }}
                     >
-                      Delivery Date
+                 Department Follow up in Days:
                     </StyledTableCell>
 
                     <StyledTableCell
@@ -1236,7 +1202,7 @@ const saveOrderHistory = async () => {
     <button onClick={() => handleMailClick(status)}  className="flex items-center">
       <h1 className="mr-1 text-[#881337] text-sm">Mail</h1>
       <span>
-        <EnvelopeIcon className="text-[#881337] w-5 h-5" />
+        <EnvelopeIcon className="text-[#881337] w-5 h-5 z-20" />
       </span>
     </button>
   </div>

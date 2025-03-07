@@ -49,7 +49,11 @@ import { showSuccessToast, showErrorToast } from "../../toastNotifications";
 import { DataContext } from "../../Context/DataContext";
 import { useParams } from "react-router-dom";
 
-const steps = ["Customer Details", "Address", "Assigned Department", "Orders"];
+// const steps = ["Customer Details", "Address", "Assigned Department", "Orders"];
+// Define steps normally
+const allSteps = ["Customer Details", "Address", "Assigned Department", "Orders"];
+
+
 const genderOptions = [
   { id: "M", name: "Male" },
   { id: "F", name: "Female" },
@@ -60,7 +64,10 @@ const customerStatusOptions = [
   { id: 3, name: "Hold" },
   { id: 4, name: "On Process" },
 ];
-
+const followUpOptions = [
+  { id: 2, name: "Enquiry" },
+  { id: 1, name: "Follow Up" },
+];
 // const referralOptions = ["Social Media", "Walk-In", "Reference"];
 
 function AddCustomers() {
@@ -108,6 +115,7 @@ function AddCustomers() {
     ReferredByID: "",
     CustomerStatus: "",
     ReferedByName:"", 
+    FollowUp:"",
   });
 
   const [addressFormData, setAddressFormData] = useState({
@@ -131,6 +139,11 @@ function AddCustomers() {
   const [selectedGender, setSelectedGender] = useState(
     customerFormData.Gender || ""
   );
+
+  const [selectedFollowUp, setSelectedFollowUp] = useState(
+     customerFormData.FollowUp || ""
+  );
+
   const [activeStep, setActiveStep] = useState(0);
 
   const [countryMap, setCountryMap] = useState({});
@@ -163,6 +176,8 @@ function AddCustomers() {
   const [stores, setStores] = useState([]);
   const [selectedStore, setSelectedStore] = useState("");
   const [dependenciesLoaded, setDependenciesLoaded] = useState(false);
+  const fromFollowups = location.state?.fromFollowups || false; // ✅ Get navigation state
+
   // State to hold selected status
   const [selectedStatus, setSelectedStatus] = useState(
     customerFormData.CustomerStatus || ""
@@ -244,6 +259,13 @@ function AddCustomers() {
         const selectedGender = genderOptions.find(
           (g) => g.id === fetchedCustomerData.Gender
         );
+        // const selectedFollowUp = followUpOptions.find(
+        //   (f) => f.id === fetchedCustomerData.FollowUp
+        // );
+        const selectedFollowUp = followUpOptions.find(
+  (f) => f.id === Number(fetchedCustomerData.FollowUp) // Ensure type match
+);
+
         const selectedStatus = customerStatusOptions.find(
           (s) => s.name === fetchedCustomerData.CustomerStatus
         );
@@ -260,6 +282,7 @@ function AddCustomers() {
           });
           setSelectedStatus(selectedStatus || null);
           setSelectedGender(selectedGender || null);
+          setSelectedFollowUp(selectedFollowUp|| null);
           setSelectedStore(selectedStore || null);
           setReferedBy(selectedReferral || "");
           setCustomerReference(
@@ -287,6 +310,14 @@ function AddCustomers() {
     }
   }, [customerId, dependenciesLoaded]);
 
+  
+// Conditionally modify steps
+const steps = fromFollowups && selectedFollowUp?.id === 1
+? allSteps.filter((_, index) => index !== 2) // Hide step 2
+: allSteps;
+//  console.log(steps);
+//  console.log(fromFollowups);
+//  console.log(selectedFollowUp?.id );
   const handleReferralTypeChange = (type) => {
     setReferedBy(type); // Set the selected referral type
     setCustomerFormData({ ...customerFormData, ReferedBy: type });
@@ -296,7 +327,10 @@ function AddCustomers() {
     setSelectedGender(gender);
     setCustomerFormData({ ...customerFormData, Gender: gender.id });
   };
-
+  const handleFollowUpChange = (followUp) => {
+    setSelectedFollowUp(followUp);
+    setCustomerFormData({ ...customerFormData, FollowUp: followUp.id }); // Set FollowUp ID in customerFormData
+  };
   const handleCustomerFormChange = (e) => {
     const { name, value } = e.target;
     setCustomerFormData({
@@ -1459,6 +1493,7 @@ function AddCustomers() {
                     </div>
 
                                         {/* Referred By Name */}
+                                        <div>
   <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row mt-2">
     <label className="w-1/3 text-xs font-medium text-gray-700">
       Referred By Name
@@ -1474,7 +1509,8 @@ function AddCustomers() {
       }`}
     />
   </div>
-                    <div className="flex flex-col gap-4 w-full">
+  </div>   <div>  
+             <div className="flex flex-col gap-4 w-full">
                       {/* Reference Dropdown */}
                       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full">
                         <label className="w-1/3 text-xs font-medium text-gray-700">
@@ -1682,22 +1718,9 @@ function AddCustomers() {
                         </div>
                       )}
                     </div>
-
-
-
-                    {/* Comments */}
-                    <div className="flex  sm:items-center gap-4 w-full flex-col sm:flex-row">
-                      <label className="w-1/3 text-xs font-medium text-gray-700">
-                        Comments
-                      </label>
-                      <textarea
-                        name="Comments"
-                        value={customerFormData?.Comments || ""}
-                        onChange={handleCustomerFormChange}
-                        className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
-                        rows="3"
-                      />
-                    </div>
+                    </div>  
+                   
+                    <div>   
                     <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row">
                       <label className="w-1/3 text-xs font-medium text-gray-700">
                         Customer Status <span className="text-red-500">*</span>
@@ -1776,6 +1799,80 @@ function AddCustomers() {
                         </p>
                       )}
                     </div>
+                    </div>  
+     
+                    <div>
+  <div className="flex sm:items-center gap-4 w-full flex-col sm:flex-row mt-4">
+    <label className="w-1/3 text-xs font-medium text-gray-700">
+      Assign Follow Up <span className="text-red-500">*</span>
+    </label>
+    <Combobox value={selectedFollowUp} onChange={handleFollowUpChange}>
+      <div className="relative w-full">
+        <Combobox.Input
+          className={`w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 sm:text-sm ${
+            errors?.FollowUpError && !selectedFollowUp
+              ? "ring-red-400"
+              : "ring-gray-400"
+          }`}
+          displayValue={(followUp) => followUp?.name || ""}
+        />
+        <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+          <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+        </Combobox.Button>
+        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          {followUpOptions.map((followUp) => (
+            <Combobox.Option
+              key={followUp.id}
+              className={({ active }) =>
+                `relative cursor-default select-none py-2 pl-3 pr-9 ${
+                  active ? "bg-indigo-600 text-white" : "text-gray-900"
+                }`
+              }
+              value={followUp}
+            >
+              {({ selected, active }) => (
+                <>
+                  <span className={`block truncate ${selected ? "font-semibold" : "font-normal"}`}>
+                    {followUp.name}
+                  </span>
+                  {selected && (
+                    <span className={`absolute inset-y-0 right-0 flex items-center pr-4 ${
+                      active ? "text-white" : "text-indigo-600"
+                    }`}>
+                      <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                  )}
+                </>
+              )}
+            </Combobox.Option>
+          ))}
+        </Combobox.Options>
+      </div>
+    </Combobox>
+  </div>
+  <div className="w-full flex sm:pr-[158px] justify-start sm:justify-center sm:mr-4">
+    {errors?.FollowUpError && !selectedFollowUp && (
+      <p className="text-red-500 text-sm mt-1">{errors.FollowUpError}</p>
+    )}
+  </div>
+</div>
+
+                     {/* Comments */}
+                     <div>  
+                    <div className="flex  sm:items-center gap-4 w-full flex-col sm:flex-row">
+                      <label className="w-1/3 text-xs font-medium text-gray-700">
+                        Comments
+                      </label>
+                      <textarea
+                        name="Comments"
+                        value={customerFormData?.Comments || ""}
+                        onChange={handleCustomerFormChange}
+                        className="w-full rounded-md border-0 bg-white py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm"
+                        rows="3"
+                      />
+                    </div>
+                    </div> 
+              
                     {/* <div></div> */}
                     <div></div>{" "}
                     <div className=" flex items-center gap-4  w-full"></div>
@@ -2196,7 +2293,11 @@ function AddCustomers() {
                     </TableContainer>
                   </div>
                 )}
-                {activeStep === 2 && <Step2 onBack={handleBack} />}
+                {/* {activeStep === 2 && <Step2 onBack={handleBack} />} */}
+                {activeStep === 2 &&
+      (!fromFollowups || selectedFollowUp?.id === 2) && (
+        <Step2 onBack={handleBack} />
+      )}
                 {activeStep === 3 && (
                   <>
                     <TableContainer
