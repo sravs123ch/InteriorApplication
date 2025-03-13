@@ -620,7 +620,7 @@ const fetchCustomerStatusData = async () => {
                 PRODUCTION
               </p>
             </div>
-            <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p>
+            {/* <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p> */}
           </div>
         </div>
 
@@ -641,7 +641,7 @@ const fetchCustomerStatusData = async () => {
                 INSTALLATION
               </p>
             </div>
-            <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p>
+            {/* <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p> */}
           </div>
         </div>
 
@@ -662,7 +662,7 @@ const fetchCustomerStatusData = async () => {
                 HANDOVER
               </p>
             </div>
-            <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p>
+            {/* <p className="text-2xl absolute bottom-4 right-5 font-bold">100</p> */}
           </div>
         </div>
       </div>
