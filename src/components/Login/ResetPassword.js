@@ -10,6 +10,7 @@ import axios from "axios";
 import PersonIcon from "@mui/icons-material/Person";
 import { toast, ToastContainer } from "react-toastify";
 import LoadingAnimation from "../../components/Loading/LoadingAnimation";
+import b2yLogo from "../../assests/Images/b2y-Logo.png";
 
 const Login = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -117,7 +118,7 @@ const Login = () => {
             <div className="flex justify-center rounded-md mb-8">
               <img
                 alt="Your Company"
-                src={Logo}
+                src={b2yLogo}
                 className="h-20 w-auto rounded-lg ml-6"
               />
             </div>

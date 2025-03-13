@@ -8,6 +8,7 @@ import { ForgotPassword, VerifyOTP } from "../../Constants/apiRoutes";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import LoadingAnimation from "../../components/Loading/LoadingAnimation";
+import b2yLogo from "../../assests/Images/b2y-Logo.png";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -190,7 +191,7 @@ const Login = () => {
             <div className="flex justify-center rounded-md mb-8">
               <img
                 alt="Your Company"
-                src={Logo}
+                src={b2yLogo}
                 className="h-20 w-auto rounded-lg ml-6"
               />
             </div>

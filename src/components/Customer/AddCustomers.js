@@ -115,7 +115,7 @@ function AddCustomers() {
     ReferredByID: "",
     CustomerStatus: "",
     ReferedByName:"", 
-    FollowUp:"",
+    FollowUps:"",
   });
 
   const [addressFormData, setAddressFormData] = useState({
@@ -141,7 +141,7 @@ function AddCustomers() {
   );
 
   const [selectedFollowUp, setSelectedFollowUp] = useState(
-     customerFormData.FollowUp || ""
+     customerFormData.FollowUps || ""
   );
 
   const [activeStep, setActiveStep] = useState(0);
@@ -263,7 +263,7 @@ function AddCustomers() {
         //   (f) => f.id === fetchedCustomerData.FollowUp
         // );
         const selectedFollowUp = followUpOptions.find(
-  (f) => f.id === Number(fetchedCustomerData.FollowUp) // Ensure type match
+  (f) => f.id === Number(fetchedCustomerData.FollowUps) // Ensure type match
 );
 
         const selectedStatus = customerStatusOptions.find(
@@ -329,7 +329,7 @@ const steps = fromFollowups && selectedFollowUp?.id === 1
   };
   const handleFollowUpChange = (followUp) => {
     setSelectedFollowUp(followUp);
-    setCustomerFormData({ ...customerFormData, FollowUp: followUp.id }); // Set FollowUp ID in customerFormData
+    setCustomerFormData({ ...customerFormData, FollowUps: followUp.id }); // Set FollowUp ID in customerFormData
   };
   const handleCustomerFormChange = (e) => {
     const { name, value } = e.target;

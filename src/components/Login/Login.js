@@ -12,12 +12,11 @@ import {
   GETALLSTORES_API,
   LOGIN,
   STATES_API,
- 
 } from "../../Constants/apiRoutes";
-
 import LoadingAnimation from "../Loading/LoadingAnimation";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import b2yLogo from "../../assests/Images/b2y-Logo.png";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -28,6 +27,7 @@ const Login = () => {
   const { login } = useAuth();
   const [isStoreDataLoading, setIsStoreDataLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
 
   // Fetch data from the APIs if not present in local storage
@@ -95,10 +95,30 @@ const Login = () => {
       setIsStoreDataLoading(false);
     }
   };
-
+  const validateForm = () => {
+        let formErrors = {};
+      
+        if (!userName) {
+          formErrors.userName = "Email is required.";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userName)) {
+          formErrors.userName = "Please enter a valid email address.";
+        }
+      
+        if (!password) {
+          formErrors.password = "Password is required.";
+        } else if (password.length < 4) {
+          formErrors.password = "Password must be at least 6 characters.";
+        }
+      
+        setErrors(formErrors); // Update state with errors
+      
+        return Object.keys(formErrors).length === 0; // Return true if no errors
+      };
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    if (!validateForm( setIsLoading(false))) return;
+    if (validateForm()) {
     try {
       const response = await fetch(LOGIN, {
         method: "POST",
@@ -137,6 +157,7 @@ const Login = () => {
           // Add a 5-second delay before navigation
       setTimeout(() => {
         navigate("/dashboard");
+        setIsLoading(true);
       }, 3000); // 5 seconds delay
       } else {
         console.error("Login failed:", data.message);
@@ -150,7 +171,7 @@ const Login = () => {
         setIsLoading(false);
       }, 10000); // 5 seconds delay
     }
-    
+  }
   };
 
   const togglePasswordVisibility = () => {
@@ -163,6 +184,19 @@ const Login = () => {
       setIsLoading(false); // Stop loading after navigation
     }, 500); // Simulate a small loading delay (500ms)
   };
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "username") {
+        setUserName(value);
+        setErrors((prevErrors) => ({ ...prevErrors, username: "" })); // Clear error for username
+    } 
+    else if (name === "password") {
+        setPassword(value);
+        setErrors((prevErrors) => ({ ...prevErrors, password: "" })); // Clear error for password
+    }
+};
+
 
   return (
     <>
@@ -173,7 +207,7 @@ const Login = () => {
             <div className="flex justify-center rounded-md mb-8 ">
               <img
                 alt="Your Company"
-                src={Logo}
+                src={b2yLogo}
                 className="h-20 w-auto x rounded-lg ml-6"
               />
             </div>
@@ -188,55 +222,58 @@ const Login = () => {
             <div className="mt-10">
               <div>
                 <form className="space-y-6">
-                  <div>
-                    <div className="mt-2 relative">
-                      <input
-                        id="username"
-                        name="username"
-                        type="text"
-                        required
-                        placeholder="Email"
-                        onChange={(e) => setUserName(e.target.value)}
-                        className=" p-2 pl-12 w-full border-2 border-gray-300 bg-gray-100 shadow-sm hover:border-[#301607] focus:border-[#c95d1e] outline-none rounded-md border-w"
-                      />
-                      <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#301607] pointer-events-none">
-                        <PersonIcon fontSize="small" />
-                      </span>
-                    </div>
-                  </div>
+              
+                    {/* Email Field */}
+  <div>
+    <div className="mt-2 relative">
+      <input
+        id="username"
+        name="username"
+        type="text"
+        required
+        placeholder="Email"
+        value={userName}
+        onChange={(e) => setUserName(e.target.value)}
+        onBlur={() =>validateForm()} // Validate onBlur
+        className="p-2 pl-12 w-full border-2 border-gray-300 bg-gray-100 shadow-sm hover:border-[#301607] focus:border-[#301607] outline-none rounded-md"
+      />
+      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#301607] pointer-events-none">
+        <PersonIcon fontSize="small" />
+      </span>
+    </div>
+    {errors.userName && <p className="text-red-500 text-sm mt-1">{errors.userName}</p>}
+  </div>
 
-                  <div>
-                    <div className="mt-2 relative">
-                      <input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        required
-                        placeholder="Password"
-                        onChange={(e) => setPassword(e.target.value)}
-                        className=" p-2 pl-12 w-full border-2 border-gray-300 bg-gray-100 shadow-sm hover:border-[#301607]  focus:border-[#c95d1e] outline-none rounded-md transition"
-                      />
-                      <span class="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#301607] pointer-events-none">
-                        <LockIcon fontSize="small" />
-                      </span>
-                      <span
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#301607]"
-                        onClick={togglePasswordVisibility}
-                      >
-                        {showPassword ? (
-                          <VisibilityOffIcon
-                            fontSize="small"
-                            className="opacity-85"
-                          />
-                        ) : (
-                          <VisibilityIcon
-                            fontSize="small"
-                            className="opacity-85"
-                          />
-                        )}
-                      </span>
-                    </div>
-                  </div>
+  {/* Password Field */}
+  <div>
+    <div className="mt-2 relative">
+      <input
+        id="password"
+        name="password"
+        type={showPassword ? "text" : "password"}
+        required
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        onBlur={() => validateForm()} // Validate onBlur
+        className="p-2 pl-12 w-full border-2 border-gray-300 bg-gray-100 shadow-sm hover:border-[#301607] focus:border-[#301607] outline-none rounded-md transition"
+      />
+      <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-[#301607] pointer-events-none">
+        <LockIcon fontSize="small" />
+      </span>
+      <span
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#301607]"
+        onClick={togglePasswordVisibility}
+      >
+        {showPassword ? (
+          <VisibilityOffIcon fontSize="small" className="opacity-85" />
+        ) : (
+          <VisibilityIcon fontSize="small" className="opacity-85" />
+        )}
+      </span>
+    </div>
+    {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+  </div>
 
                   <div className="flex items-center justify-between mb-4">
                     {/* Remember Me */}
