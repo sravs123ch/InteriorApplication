@@ -1,0 +1,10 @@
+
+version: '3'
+services:
+  imly-ui-dev:
+    image: b2yinfy/crm-demo-ui:v1  # Use your custom image instead of plain nginx
+    container_name: crm-demo-ui
+    networks:
+      - imly-network
+    ports:
+      - "4091:4091"  # Expose only port 4020

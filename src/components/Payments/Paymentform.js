@@ -104,47 +104,7 @@ const Paymentform = () => {
   }, []);
 
   const savePayment = () => {
-    // Validation messages
-    const validatePaymentData = () => {
-      const newErrors = {};
-      if (!selectedCustomer) {
-        newErrors.CustomerError = "Please select a customer.";
-      }
-      // if (!amount || amount <= 0) {
-      //   newErrors.AmountError = "Amount is required.";
-      // }
-      if (!amount || amount <= 0) {
-        newErrors.AmountError = "Amount is required";
-      } else if (amount > BalanceAmount) {
-        newErrors.AmountError = "Please enter an amount equal to or less than your balance.";
-      }
-      if (!paymentMethod) {
-        newErrors.PaymentMethodError = "Payment Method is required.";
-      }
-      if (!maskedCardNumber) {
-        newErrors.MaskedCardError = "Card Number is required.";
-      }
-      setErrors(newErrors);
-      return Object.keys(newErrors).length > 0;
-    };
-
-    // // Call validation function
-    const validationError = validatePaymentData();
-
-    // // If validation fails, show an error toast and exit the function
-    if (validationError) {
-      toast.error(validationError, {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      return; // Exit function if validation fails
-    }
-
+    
     // Payment data object with correct fields
     const paymentData = {
       TenantID: 1,
